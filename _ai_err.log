@@ -1,0 +1,2020 @@
+2026-06-07 22:44:43 [INFO] __main__: ============================================================
+2026-06-07 22:44:43 [INFO] __main__:   VigiShield AI Backend — Multi-Camera
+2026-06-07 22:44:43 [INFO] __main__:   Backend : http://localhost:5020
+2026-06-07 22:44:43 [INFO] __main__:   Models  : Activity=G:\Codigo\VigilShield\AI Model\models\vigishield_activity_model | YOLO=yolov8n.pt | DeepFace=VGG-Face
+2026-06-07 22:44:43 [INFO] __main__:   Refresh : every 300s
+2026-06-07 22:44:43 [INFO] __main__: ============================================================
+2026-06-07 22:44:44 [INFO] frame_server: AI Frame server \u2192 http://0.0.0.0:5050/frame/{camera_id}
+2026-06-07 22:44:46 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 22:44:46 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 22:44:48 [INFO] __main__: [Escritorio] Worker started \u2192 rtsp://localhost:8554/60e8ab287b75
+2026-06-07 22:44:48 [INFO] __main__: Camera 'Escritorio' (4cf6139c) \u2192 worker started
+2026-06-07 22:44:48 [INFO] __main__: [Escritorio] HLS warmer started \u2192 http://localhost:8888/60e8ab287b75/index.m3u8
+2026-06-07 22:44:48 [INFO] event_detector: Initializing pipeline for camera 'Escritorio' (4cf6139c-7711-4ab9-af42-8dc978fbc668)
+2026-06-07 22:44:48 [INFO] __main__: Active workers: 1
+2026-06-07 22:44:48 [INFO] __main__: Next camera refresh in 300s...
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1780890288.892290    2404 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1780890295.568546    2404 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-06-07 22:45:07 [WARNING] tensorflow: From C:\Users\diego\AppData\Roaming\Python\Python310\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+2026-06-07 22:45:07 [WARNING] tensorflow: From C:\Users\diego\AppData\Roaming\Python\Python310\site-packages\tf_keras\src\saving\legacy\saved_model\load.py:109: The name tf.gfile.Exists is deprecated. Please use tf.io.gfile.exists instead.
+
+I0000 00:00:1780890307.919098    2404 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-06-07 22:45:07 [WARNING] tensorflow: From C:\Users\diego\AppData\Roaming\Python\Python310\site-packages\tf_keras\src\engine\functional.py:156: The name tf.executing_eagerly_outside_functions is deprecated. Please use tf.compat.v1.executing_eagerly_outside_functions instead.
+
+2026-06-07 22:45:08 [WARNING] tensorflow: From C:\Users\diego\AppData\Roaming\Python\Python310\site-packages\tf_keras\src\layers\normalization\batch_normalization.py:979: The name tf.nn.fused_batch_norm is deprecated. Please use tf.compat.v1.nn.fused_batch_norm instead.
+
+2026-06-07 22:45:15 [INFO] absl: Fingerprint not found. Saved model loading will continue.
+2026-06-07 22:45:15 [INFO] absl: path_and_singleprint metric could not be logged. Saved model loading will continue.
+2026-06-07 22:45:16 [INFO] event_detector: ActivityDetector loaded — 21 classes, 11 suspicious, 2 excluded (Roadaccidents, Shoplifting)
+2026-06-07 22:45:20 [INFO] event_detector: Loading YOLO model: yolov8n.pt
+2026-06-07 22:45:20 [INFO] event_detector: YoloDetector ready
+2026-06-07 22:45:20 [INFO] event_detector: FaceRecognizer (ArcFace) ready for household 60e8ab28-7b75-4605-a371-26ad2e007b36 (faces: G:\Codigo\VigilShield\VigiShield_AI_Backend\known_faces\60e8ab28-7b75-4605-a371-26ad2e007b36)
+2026-06-07 22:45:20 [INFO] event_detector: [Escritorio] Pipeline ready — Activity:ON  YOLO:ON  Face:ON  Behavior:ON
+2026-06-07 22:45:20 [INFO] stream_reader: Connecting to RTSP: rtsp://localhost:8554/60e8ab287b75
+2026-06-07 22:45:25 [INFO] stream_reader: Stream connected: rtsp://localhost:8554/60e8ab287b75
+2026-06-07 22:45:25 [INFO] __main__: [Escritorio] Stream connected. Processing every 0.5s.
+2026-06-07 22:45:38 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:45:38 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.91
+2026-06-07 22:45:40 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.91 | cam=Escritorio
+2026-06-07 22:45:46 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:45:52 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:45:58 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:03 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:09 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:15 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:21 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:27 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:33 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:39 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:39 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-07 22:46:41 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-07 22:46:46 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:52 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:46:58 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:10 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:15 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:21 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:27 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:32 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:38 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:44 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:44 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 22:47:46 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 22:47:52 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:47:58 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:10 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:15 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:21 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:27 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:32 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:39 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:44 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:44 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-07 22:48:46 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-07 22:48:52 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:48:58 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:03 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:10 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:15 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:21 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:27 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:32 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:38 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:44 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:50 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:49:50 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.91
+2026-06-07 22:49:50 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 22:49:50 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 22:49:52 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.91 | cam=Escritorio
+2026-06-07 22:49:52 [INFO] __main__: Active workers: 1
+2026-06-07 22:49:52 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 22:49:58 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:09 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:15 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:21 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:27 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:32 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:38 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:44 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:50 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:56 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 22:50:56 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.95
+2026-06-07 22:50:58 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.95 | cam=Escritorio
+2026-06-07 22:51:03 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:51:09 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:51:14 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:51:20 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 22:51:27 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:51:32 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:51:38 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:51:43 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:51:49 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:51:56 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:01 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:01 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 22:52:03 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 22:52:09 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:14 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:21 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:27 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:32 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:38 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:43 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:50 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 22:52:56 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:01 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:01 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.91
+2026-06-07 22:53:03 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.91 | cam=Escritorio
+2026-06-07 22:53:09 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:15 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:21 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:27 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:32 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:39 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:44 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:50 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 22:53:56 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:02 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:02 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-07 22:54:04 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-07 22:54:10 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:15 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:21 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:27 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:33 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:39 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:44 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:50 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:54:54 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 22:54:54 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 22:54:57 [INFO] __main__: Active workers: 1
+2026-06-07 22:54:57 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 22:54:57 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:02 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:02 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-07 22:55:04 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-07 22:55:10 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:15 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:22 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:28 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:33 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:39 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:45 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:51 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:55:57 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:02 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:02 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.83
+2026-06-07 22:56:04 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.83 | cam=Escritorio
+2026-06-07 22:56:10 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:16 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:22 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:28 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:33 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:39 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:45 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:51 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:56:57 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:03 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:03 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-07 22:57:05 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-07 22:57:11 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:17 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:23 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:29 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:35 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:41 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:47 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:53 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:57:59 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:58:04 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 22:58:04 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-07 22:58:06 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-07 22:58:13 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 22:58:18 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:58:24 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:58:30 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 22:58:36 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:58:42 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 22:58:47 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 22:58:53 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:00 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:05 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:05 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-07 22:59:07 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-07 22:59:13 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:18 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:25 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:31 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:36 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:42 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:47 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:53 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 22:59:59 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 22:59:59 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:00:00 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:01 [INFO] __main__: Active workers: 1
+2026-06-07 23:00:01 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:00:05 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:05 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-07 23:00:07 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-07 23:00:13 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:19 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:25 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:31 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:36 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:42 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:47 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:53 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:00:59 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:05 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:11 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:11 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.85
+2026-06-07 23:01:13 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.85 | cam=Escritorio
+2026-06-07 23:01:18 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:24 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:30 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:35 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:42 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:47 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:53 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:01:59 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:04 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:10 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:16 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:16 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.81
+2026-06-07 23:02:18 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.81 | cam=Escritorio
+2026-06-07 23:02:24 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:30 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:35 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:41 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:46 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:52 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:02:58 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:04 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:10 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:15 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:21 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:21 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-07 23:03:23 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-07 23:03:29 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:34 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:40 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:46 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:52 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 23:03:58 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:04:03 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:04:09 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:04:14 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:04:21 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:04:34 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:04:34 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-07 23:04:36 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-07 23:04:41 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-07 23:04:47 [INFO] event_detector: ActivityModel: 'Burglary' (74%)  \u26a0 SUSPICIOUS
+2026-06-07 23:04:53 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-07 23:04:59 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:05:03 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:05:03 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:05:05 [INFO] __main__: Active workers: 1
+2026-06-07 23:05:05 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:05:05 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:05:11 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:05:17 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:05:22 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:05:28 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:05:35 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:05:35 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.83
+2026-06-07 23:05:37 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.83 | cam=Escritorio
+2026-06-07 23:05:42 [INFO] event_detector: ActivityModel: 'Burglary' (72%)  \u26a0 SUSPICIOUS
+2026-06-07 23:05:48 [INFO] event_detector: ActivityModel: 'Burglary' (74%)  \u26a0 SUSPICIOUS
+2026-06-07 23:05:53 [INFO] event_detector: ActivityModel: 'Burglary' (70%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:00 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:06 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:11 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:17 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:23 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:29 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:35 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:35 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.94
+2026-06-07 23:06:37 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.94 | cam=Escritorio
+2026-06-07 23:06:42 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:49 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:06:54 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:00 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:06 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:11 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:17 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:23 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:29 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:35 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:35 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-07 23:07:37 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-07 23:07:43 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:49 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:07:54 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:01 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:07 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:12 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:18 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:23 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:29 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:35 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:35 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.91
+2026-06-07 23:08:38 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.91 | cam=Escritorio
+2026-06-07 23:08:43 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:49 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:08:54 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:00 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:06 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:12 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:18 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:23 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:29 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:35 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:40 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:40 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.91
+2026-06-07 23:09:42 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.91 | cam=Escritorio
+2026-06-07 23:09:49 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:09:54 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:00 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:06 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:07 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:10:07 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:10:09 [INFO] __main__: Active workers: 1
+2026-06-07 23:10:09 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:10:12 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:18 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:23 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:29 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:35 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:40 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:46 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:10:46 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.85
+2026-06-07 23:10:48 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.85 | cam=Escritorio
+2026-06-07 23:10:54 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:00 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:06 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:11 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:17 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:23 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:29 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:35 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:40 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:46 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:11:46 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-07 23:11:48 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-07 23:11:54 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:00 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:06 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:11 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:17 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:23 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:29 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:35 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:40 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:46 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:52 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:12:52 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-07 23:12:54 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-07 23:13:00 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:06 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:11 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:17 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:23 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:29 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:35 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:40 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:46 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:52 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:58 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:13:58 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-07 23:14:00 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-07 23:14:06 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:14:11 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:14:17 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:14:22 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:14:29 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:14:35 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:14:40 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:14:46 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:14:51 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:14:57 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:04 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:04 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-07 23:15:06 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-07 23:15:11 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:11 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:15:11 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:15:13 [INFO] __main__: Active workers: 1
+2026-06-07 23:15:13 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:15:17 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:22 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:28 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:34 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:40 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:46 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:51 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:15:57 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:03 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:08 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:08 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.92
+2026-06-07 23:16:10 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.92 | cam=Escritorio
+2026-06-07 23:16:17 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:22 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:28 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:34 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:39 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:45 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:51 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:16:57 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:03 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:08 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:14 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:14 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-07 23:17:16 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-07 23:17:22 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:28 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:34 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:39 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:45 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:51 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:17:57 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:08 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:14 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:14 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 23:18:17 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 23:18:22 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:28 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:34 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:40 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:46 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:51 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:18:57 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:04 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:09 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:15 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:15 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-07 23:19:17 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-07 23:19:23 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:29 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:35 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:40 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:46 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:52 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:19:58 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:04 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:09 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:15 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:15 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:20:15 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:20:17 [INFO] __main__: Active workers: 1
+2026-06-07 23:20:17 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:20:20 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:20 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-07 23:20:22 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-07 23:20:28 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:35 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:40 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:46 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:51 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:20:58 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:04 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:09 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:15 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:20 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:26 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:26 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 23:21:28 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 23:21:34 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:40 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:46 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:51 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:21:57 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:03 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:08 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:14 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:20 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:26 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:32 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:32 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-07 23:22:34 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-07 23:22:39 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:45 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:50 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:22:56 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:03 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:08 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:14 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:19 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:25 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:31 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:37 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:37 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.94
+2026-06-07 23:23:39 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.94 | cam=Escritorio
+2026-06-07 23:23:45 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:50 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:23:56 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:02 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:07 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:13 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:19 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:25 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:31 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:36 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:42 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:42 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 23:24:44 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 23:24:50 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:24:56 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:25:02 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (19%)
+2026-06-07 23:25:09 [INFO] event_detector: ActivityModel: 'Burglary' (58%)  \u26a0 SUSPICIOUS
+2026-06-07 23:25:09 [INFO] event_detector:   \u2192 below alarm threshold (58% < 60%), not alerting
+2026-06-07 23:25:16 [INFO] event_detector: ActivityModel: 'Burglary' (25%)  \u26a0 SUSPICIOUS
+2026-06-07 23:25:16 [INFO] event_detector:   \u2192 below alarm threshold (25% < 60%), not alerting
+2026-06-07 23:25:19 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:25:19 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:25:19 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:25:21 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:25:21 [INFO] __main__: Active workers: 1
+2026-06-07 23:25:21 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:25:24 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:25:30 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:25:36 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:25:41 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:25:47 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:25:47 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-07 23:25:49 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-07 23:25:55 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:01 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:07 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:12 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:18 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:21 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:26:23 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:26:25 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:31 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:38 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:43 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:49 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:26:49 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.94
+2026-06-07 23:26:51 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.94 | cam=Escritorio
+2026-06-07 23:26:56 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:02 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:08 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:14 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:20 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:23 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:27:25 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:27:27 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:33 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:40 [INFO] event_detector: ActivityModel: 'Burglary' (65%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:46 [INFO] event_detector: ActivityModel: 'Burglary' (20%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:46 [INFO] event_detector:   \u2192 below alarm threshold (20% < 60%), not alerting
+2026-06-07 23:27:52 [INFO] event_detector: ActivityModel: 'Burglary' (16%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:52 [INFO] event_detector:   \u2192 below alarm threshold (16% < 60%), not alerting
+2026-06-07 23:27:58 [INFO] event_detector: ActivityModel: 'Burglary' (33%)  \u26a0 SUSPICIOUS
+2026-06-07 23:27:58 [INFO] event_detector:   \u2192 below alarm threshold (33% < 60%), not alerting
+2026-06-07 23:28:05 [INFO] event_detector: ActivityModel: 'Burglary' (41%)  \u26a0 SUSPICIOUS
+2026-06-07 23:28:05 [INFO] event_detector:   \u2192 below alarm threshold (41% < 60%), not alerting
+2026-06-07 23:28:12 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:28:12 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.94
+2026-06-07 23:28:14 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.94 | cam=Escritorio
+2026-06-07 23:28:19 [INFO] event_detector: ActivityModel: 'Burglary' (96%)  \u26a0 SUSPICIOUS
+2026-06-07 23:28:24 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:28:26 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:28:27 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:28:33 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:28:39 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:28:45 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:28:50 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:28:56 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:01 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:08 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:14 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:14 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.94
+2026-06-07 23:29:16 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.94 | cam=Escritorio
+2026-06-07 23:29:21 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:27 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:29:29 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:29:29 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:35 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:41 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:47 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:52 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:29:59 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:30:04 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:30:12 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:30:19 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:30:19 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-07 23:30:21 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-07 23:30:23 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:30:23 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:30:25 [INFO] __main__: Active workers: 1
+2026-06-07 23:30:25 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:30:26 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:30:28 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:30:30 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:30:35 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:30:40 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:30:46 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:30:52 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:30:58 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-07 23:31:04 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:31:09 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:31:15 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:31:21 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:31:21 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-07 23:31:23 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-07 23:31:29 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:31:35 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:31:40 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:31:42 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:31:44 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:31:49 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:31:55 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:00 [INFO] event_detector: ActivityModel: 'Burglary' (56%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:00 [INFO] event_detector:   \u2192 below alarm threshold (56% < 60%), not alerting
+2026-06-07 23:32:06 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:12 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:18 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:24 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:24 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 23:32:26 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 23:32:31 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:38 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:43 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:49 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:32:55 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:00 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:07 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:12 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:18 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:24 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:24 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-07 23:33:26 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-07 23:33:32 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:38 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:43 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:50 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:33:56 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:34:01 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:34:07 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:34:13 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:34:23 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:34:34 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:34:34 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-07 23:34:36 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-07 23:34:42 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:34:50 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:34:57 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:35:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:35:10 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:35:15 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:35:22 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:35:27 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:35:27 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:35:28 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:35:30 [INFO] __main__: Active workers: 1
+2026-06-07 23:35:30 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:35:34 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:35:34 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-07 23:35:36 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-07 23:35:43 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:35:48 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:35:55 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:00 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:07 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:13 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:19 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:25 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:31 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:38 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:38 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 23:36:40 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 23:36:46 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:52 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:36:58 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:37:04 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:37:09 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:37:11 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:37:12 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:37:19 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:37:24 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:37:31 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:37:36 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:37:43 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:37:43 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 23:37:45 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 23:37:51 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:37:57 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:38:04 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:38:10 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:38:16 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:38:23 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:38:29 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:38:36 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:38:42 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:38:48 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:38:48 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 23:38:50 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 23:38:57 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:09 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:16 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:23 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:30 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:36 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:42 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:48 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:55 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:39:55 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-07 23:39:57 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-07 23:40:03 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:09 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:16 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:21 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:28 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:32 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:40:32 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:40:34 [INFO] __main__: Active workers: 1
+2026-06-07 23:40:34 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:40:34 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:40 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:47 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:52 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:59 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:40:59 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.91
+2026-06-07 23:41:01 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.91 | cam=Escritorio
+2026-06-07 23:41:08 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-07 23:41:15 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:41:22 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:41:28 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:41:35 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:41:42 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:41:47 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:41:54 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:00 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:00 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.81
+2026-06-07 23:42:02 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.81 | cam=Escritorio
+2026-06-07 23:42:08 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:14 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:20 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:26 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:32 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:38 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:44 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:50 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:42:57 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:43:02 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:43:02 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.92
+2026-06-07 23:43:04 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.92 | cam=Escritorio
+2026-06-07 23:43:11 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:43:17 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:43:23 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:43:29 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:43:35 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:43:41 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:43:48 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:43:53 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:00 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:06 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:06 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-07 23:44:08 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-07 23:44:14 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:20 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:26 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:32 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:38 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:45 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:51 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:44:57 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:45:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:45:09 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:45:09 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-07 23:45:11 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-07 23:45:18 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:45:25 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:45:31 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:45:36 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:45:36 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:45:37 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:45:38 [INFO] __main__: Active workers: 1
+2026-06-07 23:45:38 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:45:43 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:45:49 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:45:56 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:46:02 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:46:08 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:46:14 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:46:14 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.85
+2026-06-07 23:46:16 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.85 | cam=Escritorio
+2026-06-07 23:46:23 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:46:29 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:46:35 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:46:42 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:46:48 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:46:54 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:01 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:01 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:47:03 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:47:08 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:14 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:14 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.80
+2026-06-07 23:47:16 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.80 | cam=Escritorio
+2026-06-07 23:47:22 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:28 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:34 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:40 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:46 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:52 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:47:58 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:48:05 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:48:10 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:48:16 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:48:16 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 23:48:19 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 23:48:24 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:48:30 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:48:37 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:48:42 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:48:49 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:48:55 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:49:00 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:49:02 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:49:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:49:10 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:49:16 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:49:22 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:49:22 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-07 23:49:24 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-07 23:49:30 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:49:36 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 23:49:43 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:49:48 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-07 23:49:56 [INFO] event_detector: ActivityModel: 'Burglary' (73%)  \u26a0 SUSPICIOUS
+2026-06-07 23:50:01 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-07 23:50:08 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:50:14 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:50:20 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-07 23:50:27 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:50:27 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.91
+2026-06-07 23:50:29 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.91 | cam=Escritorio
+2026-06-07 23:50:34 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:50:40 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:50:40 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:50:41 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:50:42 [INFO] __main__: Active workers: 1
+2026-06-07 23:50:42 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:50:47 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:50:53 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:00 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:05 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:12 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:19 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:25 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:32 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:32 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-07 23:51:34 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-07 23:51:39 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:46 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:52 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 23:51:58 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:52:04 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:52:10 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:52:17 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:52:23 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 23:52:29 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:52:36 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:52:36 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-07 23:52:38 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-07 23:52:44 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:52:51 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:52:57 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:02 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:09 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:14 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:21 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:27 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:32 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:39 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:39 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.85
+2026-06-07 23:53:41 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.85 | cam=Escritorio
+2026-06-07 23:53:46 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:52 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:53:59 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:54:04 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:54:10 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:54:16 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:54:22 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:54:28 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:54:33 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:54:40 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:54:40 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-07 23:54:42 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-07 23:54:47 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-07 23:54:54 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:00 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:04 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-07 23:55:06 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-07 23:55:08 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:14 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:20 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:26 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:33 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:38 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:44 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-07 23:55:44 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-07 23:55:45 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:45 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-07 23:55:46 [INFO] __main__: Active workers: 1
+2026-06-07 23:55:46 [INFO] __main__: Next camera refresh in 300s...
+2026-06-07 23:55:47 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-07 23:55:53 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:55:59 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-07 23:56:06 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:56:12 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:56:18 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:56:24 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:56:30 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:56:37 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:56:42 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:56:49 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:56:49 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.88
+2026-06-07 23:56:51 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.88 | cam=Escritorio
+2026-06-07 23:56:57 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:03 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:10 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:15 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:21 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:27 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:33 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:39 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:45 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:51 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:57:51 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-07 23:57:53 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-07 23:57:59 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:05 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:12 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:18 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:24 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:30 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:36 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:43 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:48 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:55 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:58:55 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.83
+2026-06-07 23:58:57 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.83 | cam=Escritorio
+2026-06-07 23:59:02 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:08 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:15 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:20 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:27 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:32 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:39 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:45 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:51 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:58 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-07 23:59:58 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-08 00:00:00 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-08 00:00:05 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:00:12 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 00:00:18 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:00:24 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:00:31 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:00:36 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:00:43 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:00:48 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:00:48 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:00:49 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:00:50 [INFO] __main__: Active workers: 1
+2026-06-08 00:00:50 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:00:55 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:01 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:01 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.92
+2026-06-08 00:01:03 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.92 | cam=Escritorio
+2026-06-08 00:01:09 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:15 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:21 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:27 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:33 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:38 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:45 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:51 [INFO] event_detector: ActivityModel: 'Burglary' (100%)  \u26a0 SUSPICIOUS
+2026-06-08 00:01:56 [INFO] event_detector: ActivityModel: 'Burglary' (64%)  \u26a0 SUSPICIOUS
+2026-06-08 00:02:03 [INFO] event_detector: ActivityModel: 'Burglary' (32%)  \u26a0 SUSPICIOUS
+2026-06-08 00:02:03 [INFO] event_detector:   \u2192 below alarm threshold (32% < 60%), not alerting
+2026-06-08 00:02:09 [INFO] event_detector: ActivityModel: 'Burglary' (35%)  \u26a0 SUSPICIOUS
+2026-06-08 00:02:09 [INFO] event_detector:   \u2192 below alarm threshold (35% < 60%), not alerting
+2026-06-08 00:02:16 [INFO] event_detector: ActivityModel: 'Burglary' (55%)  \u26a0 SUSPICIOUS
+2026-06-08 00:02:16 [INFO] event_detector:   \u2192 below alarm threshold (55% < 60%), not alerting
+2026-06-08 00:02:23 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 00:02:23 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.76
+2026-06-08 00:02:25 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.76 | cam=Escritorio
+2026-06-08 00:02:30 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:02:36 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:02:38 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:02:39 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:02:45 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:02:51 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:02:57 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:03:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:03:09 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:03:15 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:03:21 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:03:27 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:03:27 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-08 00:03:30 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-08 00:03:35 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:03:41 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:03:43 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:03:43 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:03:49 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:03:56 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:02 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:08 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:14 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:19 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:26 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:32 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:32 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-08 00:04:34 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-08 00:04:40 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:46 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:51 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:04:58 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:05:04 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:05:10 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:05:16 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:05:22 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:05:28 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:05:35 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:05:35 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-08 00:05:37 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-08 00:05:41 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:05:43 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:05:45 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:05:51 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:05:52 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:05:52 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:05:54 [INFO] __main__: Active workers: 1
+2026-06-08 00:05:54 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:05:57 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:06:03 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:06:09 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:06:15 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:06:22 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:06:27 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:06:34 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:06:41 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:06:41 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-08 00:06:43 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-08 00:06:48 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:06:55 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:01 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:07 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:14 [INFO] event_detector: ActivityModel: 'Burglary' (72%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:20 [INFO] event_detector: ActivityModel: 'Burglary' (67%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:26 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:31 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:38 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:44 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:44 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.81
+2026-06-08 00:07:46 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.81 | cam=Escritorio
+2026-06-08 00:07:52 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:07:58 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 00:08:04 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:08:10 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:08:16 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:08:22 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:08:28 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:08:33 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:08:40 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:08:46 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:08:46 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.80
+2026-06-08 00:08:48 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.80 | cam=Escritorio
+2026-06-08 00:08:53 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:00 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:05 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:11 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:18 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:23 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:29 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:35 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:41 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:47 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:09:47 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.88
+2026-06-08 00:09:49 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.88 | cam=Escritorio
+2026-06-08 00:09:55 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:00 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:10:02 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:10:03 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:09 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:15 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:21 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:27 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:33 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:38 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:44 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:51 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:51 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-08 00:10:53 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-08 00:10:57 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:10:57 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:10:58 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:10:59 [INFO] __main__: Active workers: 1
+2026-06-08 00:10:59 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:11:04 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:11:10 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:11:16 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:11:22 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:11:27 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:11:34 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:11:39 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:11:45 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:11:52 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:11:52 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-08 00:11:54 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-08 00:11:59 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:05 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:11 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:17 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:23 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:29 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:35 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:40 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:47 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:53 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:12:53 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.85
+2026-06-08 00:12:55 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.85 | cam=Escritorio
+2026-06-08 00:13:00 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:07 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:12 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:18 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:25 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:30 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:33 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:13:35 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:13:39 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:45 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:51 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:58 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:13:58 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.81
+2026-06-08 00:14:00 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.81 | cam=Escritorio
+2026-06-08 00:14:06 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:14:12 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:14:18 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:14:25 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:14:31 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:14:37 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:14:43 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:14:48 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:14:55 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:01 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:01 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-08 00:15:03 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-08 00:15:08 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:14 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:20 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:26 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:32 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:38 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:44 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:49 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:15:56 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:16:01 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:16:01 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:16:02 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:16:02 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-08 00:16:03 [INFO] __main__: Active workers: 1
+2026-06-08 00:16:03 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:16:04 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-08 00:16:10 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 00:16:12 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:16:14 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:16:18 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:16:24 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:16:31 [INFO] event_detector: ActivityModel: 'Burglary' (73%)  \u26a0 SUSPICIOUS
+2026-06-08 00:16:38 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:16:43 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:16:50 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:16:56 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:02 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:02 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.87
+2026-06-08 00:17:04 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.87 | cam=Escritorio
+2026-06-08 00:17:11 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:16 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:22 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:28 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:34 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:41 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:46 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:53 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:17:58 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:05 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:05 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-08 00:18:07 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-08 00:18:13 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:19 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:25 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:30 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:37 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:43 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:49 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:55 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:18:58 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:19:00 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:19:02 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:19:08 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:19:08 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-08 00:19:11 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-08 00:19:17 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:19:22 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:19:28 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:19:34 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:19:40 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:19:46 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:19:52 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:19:59 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:20:04 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:20:11 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:20:11 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.85
+2026-06-08 00:20:13 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.85 | cam=Escritorio
+2026-06-08 00:20:19 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:20:25 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:20:31 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:20:37 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:20:43 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:20:49 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:20:55 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:01 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:05 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:21:05 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:21:07 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:07 [INFO] __main__: Active workers: 1
+2026-06-08 00:21:07 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:21:13 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:13 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-08 00:21:15 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-08 00:21:21 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:27 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:33 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:39 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:45 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:51 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:21:57 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:22:04 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:22:11 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:22:18 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:22:18 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.85
+2026-06-08 00:22:20 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.85 | cam=Escritorio
+2026-06-08 00:22:27 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:22:34 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:22:41 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:22:46 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:22:53 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:22:59 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:23:05 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:23:12 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:23:17 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:23:23 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:23:23 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.91
+2026-06-08 00:23:25 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.91 | cam=Escritorio
+2026-06-08 00:23:32 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:23:37 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:23:44 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:23:49 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:23:55 [INFO] event_detector: ActivityModel: 'Burglary' (69%)  \u26a0 SUSPICIOUS
+2026-06-08 00:24:02 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:24:07 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:24:15 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:24:22 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:24:28 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 00:24:28 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.77
+2026-06-08 00:24:30 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.77 | cam=Escritorio
+2026-06-08 00:24:37 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:24:42 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 00:24:49 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:24:54 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 00:25:02 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:25:08 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:25:14 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:25:22 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-08 00:25:28 [INFO] event_detector: ActivityModel: 'Burglary' (69%)  \u26a0 SUSPICIOUS
+2026-06-08 00:25:35 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 00:25:35 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.68
+2026-06-08 00:25:37 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.68 | cam=Escritorio
+2026-06-08 00:25:43 [INFO] event_detector: ActivityModel: 'Burglary' (65%)  \u26a0 SUSPICIOUS
+2026-06-08 00:25:49 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 00:25:56 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-08 00:26:01 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 00:26:08 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 00:26:09 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:26:09 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:26:11 [INFO] __main__: Active workers: 1
+2026-06-08 00:26:11 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:26:14 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 00:26:20 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-08 00:26:27 [INFO] event_detector: ActivityModel: 'Burglary' (67%)  \u26a0 SUSPICIOUS
+2026-06-08 00:26:33 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 00:26:39 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:26:39 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.81
+2026-06-08 00:26:41 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.81 | cam=Escritorio
+2026-06-08 00:26:48 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:26:53 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:00 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:06 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:12 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:19 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:24 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:31 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:36 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:43 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:43 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.92
+2026-06-08 00:27:45 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.92 | cam=Escritorio
+2026-06-08 00:27:51 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:27:57 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:28:05 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:28:16 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:28:27 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:28:35 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:28:48 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:28:48 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-08 00:28:50 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-08 00:29:01 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:29:08 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:29:15 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:29:22 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:29:28 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:29:35 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 00:29:41 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 00:29:48 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 00:29:54 [INFO] event_detector: ActivityModel: 'Burglary' (59%)  \u26a0 SUSPICIOUS
+2026-06-08 00:29:54 [INFO] event_detector:   \u2192 below alarm threshold (59% < 60%), not alerting
+2026-06-08 00:30:00 [INFO] event_detector: ActivityModel: 'Burglary' (61%)  \u26a0 SUSPICIOUS
+2026-06-08 00:30:00 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.61
+2026-06-08 00:30:02 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.61 | cam=Escritorio
+2026-06-08 00:30:09 [INFO] event_detector: ActivityModel: 'Burglary' (62%)  \u26a0 SUSPICIOUS
+2026-06-08 00:30:15 [INFO] event_detector: ActivityModel: 'Burglary' (55%)  \u26a0 SUSPICIOUS
+2026-06-08 00:30:15 [INFO] event_detector:   \u2192 below alarm threshold (55% < 60%), not alerting
+2026-06-08 00:30:21 [INFO] event_detector: ActivityModel: 'Burglary' (74%)  \u26a0 SUSPICIOUS
+2026-06-08 00:30:29 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:30:35 [INFO] event_detector: ActivityModel: 'Burglary' (73%)  \u26a0 SUSPICIOUS
+2026-06-08 00:30:42 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:30:49 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:30:55 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:31:04 [INFO] event_detector: ActivityModel: 'Burglary' (65%)  \u26a0 SUSPICIOUS
+2026-06-08 00:31:04 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.65
+2026-06-08 00:31:06 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.65 | cam=Escritorio
+2026-06-08 00:31:11 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 00:31:13 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:31:13 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:31:15 [INFO] __main__: Active workers: 1
+2026-06-08 00:31:15 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:31:18 [INFO] event_detector: ActivityModel: 'Burglary' (61%)  \u26a0 SUSPICIOUS
+2026-06-08 00:31:24 [INFO] event_detector: ActivityModel: 'Burglary' (69%)  \u26a0 SUSPICIOUS
+2026-06-08 00:31:30 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-08 00:31:37 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 00:31:43 [INFO] event_detector: ActivityModel: 'Burglary' (70%)  \u26a0 SUSPICIOUS
+2026-06-08 00:31:50 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:31:56 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:32:03 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 00:32:09 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 00:32:09 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.68
+2026-06-08 00:32:12 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.68 | cam=Escritorio
+2026-06-08 00:32:17 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:32:25 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:32:31 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:32:37 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:32:44 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:32:50 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:32:57 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:33:03 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:33:10 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:33:10 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-08 00:33:12 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-08 00:33:19 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:33:26 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:33:32 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 00:33:38 [INFO] event_detector: ActivityModel: 'Burglary' (73%)  \u26a0 SUSPICIOUS
+2026-06-08 00:33:45 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 00:33:52 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (41%)
+2026-06-08 00:33:59 [INFO] event_detector: ActivityModel: 'Burglary' (37%)  \u26a0 SUSPICIOUS
+2026-06-08 00:33:59 [INFO] event_detector:   \u2192 below alarm threshold (37% < 60%), not alerting
+2026-06-08 00:34:08 [INFO] event_detector: ActivityModel: 'Burglary' (65%)  \u26a0 SUSPICIOUS
+2026-06-08 00:34:14 [INFO] event_detector: ActivityModel: 'Burglary' (51%)  \u26a0 SUSPICIOUS
+2026-06-08 00:34:14 [INFO] event_detector:   \u2192 below alarm threshold (51% < 60%), not alerting
+2026-06-08 00:34:20 [INFO] event_detector: ActivityModel: 'Burglary' (49%)  \u26a0 SUSPICIOUS
+2026-06-08 00:34:20 [INFO] event_detector:   \u2192 below alarm threshold (49% < 60%), not alerting
+2026-06-08 00:34:27 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (47%)
+2026-06-08 00:34:32 [INFO] event_detector: ActivityModel: 'Burglary' (38%)  \u26a0 SUSPICIOUS
+2026-06-08 00:34:32 [INFO] event_detector:   \u2192 below alarm threshold (38% < 60%), not alerting
+2026-06-08 00:34:39 [INFO] event_detector: ActivityModel: 'Burglary' (72%)  \u26a0 SUSPICIOUS
+2026-06-08 00:34:39 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.72
+2026-06-08 00:34:41 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.72 | cam=Escritorio
+2026-06-08 00:34:46 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 00:34:52 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:34:59 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-08 00:35:04 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 00:35:10 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:35:16 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:35:22 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:35:28 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:35:34 [INFO] event_detector: ActivityModel: 'Burglary' (65%)  \u26a0 SUSPICIOUS
+2026-06-08 00:35:40 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:35:40 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.80
+2026-06-08 00:35:42 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.80 | cam=Escritorio
+2026-06-08 00:35:48 [INFO] event_detector: ActivityModel: 'Burglary' (73%)  \u26a0 SUSPICIOUS
+2026-06-08 00:35:54 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:01 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:06 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:13 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:18 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:36:18 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:36:18 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:20 [INFO] __main__: Active workers: 1
+2026-06-08 00:36:20 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:36:25 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:31 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:37 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:43 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:43 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.80
+2026-06-08 00:36:45 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.80 | cam=Escritorio
+2026-06-08 00:36:50 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 00:36:57 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:03 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:08 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:15 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:20 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:26 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:33 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:38 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:44 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:44 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.80
+2026-06-08 00:37:46 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.80 | cam=Escritorio
+2026-06-08 00:37:52 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 00:37:58 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:04 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:09 [INFO] event_detector: ActivityModel: 'Burglary' (67%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:16 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:21 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:27 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:34 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:39 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:45 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:45 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.79
+2026-06-08 00:38:47 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.79 | cam=Escritorio
+2026-06-08 00:38:53 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 00:38:59 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 00:39:05 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:39:11 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:39:17 [INFO] event_detector: ActivityModel: 'Burglary' (70%)  \u26a0 SUSPICIOUS
+2026-06-08 00:39:22 [INFO] event_detector: ActivityModel: 'Burglary' (64%)  \u26a0 SUSPICIOUS
+2026-06-08 00:39:29 [INFO] event_detector: ActivityModel: 'Burglary' (60%)  \u26a0 SUSPICIOUS
+2026-06-08 00:39:29 [INFO] event_detector:   \u2192 below alarm threshold (60% < 60%), not alerting
+2026-06-08 00:39:35 [INFO] event_detector: ActivityModel: 'Burglary' (67%)  \u26a0 SUSPICIOUS
+2026-06-08 00:39:40 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 00:39:47 [INFO] event_detector: ActivityModel: 'Burglary' (65%)  \u26a0 SUSPICIOUS
+2026-06-08 00:39:47 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.65
+2026-06-08 00:39:49 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.65 | cam=Escritorio
+2026-06-08 00:39:54 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:00 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:06 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:11 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:17 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:23 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:29 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:31 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:40:33 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:40:37 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:42 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:48 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:40:48 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-08 00:40:50 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-08 00:40:56 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:02 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:08 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:13 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:19 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:22 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:41:22 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:41:24 [INFO] __main__: Active workers: 1
+2026-06-08 00:41:24 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:41:25 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:31 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:37 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:42 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:48 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:54 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:41:54 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-08 00:41:56 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-08 00:42:02 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:08 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:13 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:19 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:25 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:31 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:37 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:42 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:48 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:54 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:42:54 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.90
+2026-06-08 00:42:56 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.90 | cam=Escritorio
+2026-06-08 00:43:02 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:08 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:13 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:19 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:25 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:31 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:37 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:42 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:48 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:53 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:59 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:43:59 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-08 00:44:02 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-08 00:44:08 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:44:13 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:44:19 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:44:24 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:44:30 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:44:33 [INFO] event_detector: YOLO: knife detected (conf=1.00)
+2026-06-08 00:44:33 [INFO] event_detector: [Escritorio] Event: WeaponDetected | risk=Critical | conf=1.00
+2026-06-08 00:44:35 [INFO] api_client: Event ingested: WeaponDetected | risk=Critical | conf=1.00 | cam=Escritorio
+2026-06-08 00:44:39 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:44:44 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-08 00:44:50 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:44:55 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:01 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:01 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-08 00:45:03 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-08 00:45:10 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:15 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:21 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:26 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:33 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:39 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:44 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:50 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:45:55 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:01 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:08 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:08 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.94
+2026-06-08 00:46:10 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.94 | cam=Escritorio
+2026-06-08 00:46:16 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:22 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:26 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:46:26 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:46:28 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:28 [INFO] __main__: Active workers: 1
+2026-06-08 00:46:28 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:46:34 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:40 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:45 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:51 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:46:57 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:03 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:09 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:09 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.94
+2026-06-08 00:47:11 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.94 | cam=Escritorio
+2026-06-08 00:47:16 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:22 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:28 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:34 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:40 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:45 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:51 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:47:56 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:02 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:08 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:14 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:14 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.94
+2026-06-08 00:48:16 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.94 | cam=Escritorio
+2026-06-08 00:48:22 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:27 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:33 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:39 [INFO] event_detector: ActivityModel: 'Burglary' (92%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:45 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:51 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:48:56 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:02 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:08 [INFO] event_detector: ActivityModel: 'Burglary' (95%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:14 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:20 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:20 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.94
+2026-06-08 00:49:22 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.94 | cam=Escritorio
+2026-06-08 00:49:27 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:33 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:39 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:44 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:51 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:49:56 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:02 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:08 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:13 [INFO] event_detector: ActivityModel: 'Burglary' (96%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:19 [INFO] event_detector: ActivityModel: 'Burglary' (94%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:25 [INFO] event_detector: ActivityModel: 'Burglary' (93%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:25 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.93
+2026-06-08 00:50:27 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.93 | cam=Escritorio
+2026-06-08 00:50:33 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:39 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:44 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:50 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:56 [INFO] event_detector: ActivityModel: 'Burglary' (57%)  \u26a0 SUSPICIOUS
+2026-06-08 00:50:56 [INFO] event_detector:   \u2192 below alarm threshold (57% < 60%), not alerting
+2026-06-08 00:51:01 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:51:03 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:51:04 [INFO] event_detector: ActivityModel: 'Burglary' (29%)  \u26a0 SUSPICIOUS
+2026-06-08 00:51:04 [INFO] event_detector:   \u2192 below alarm threshold (29% < 60%), not alerting
+2026-06-08 00:51:12 [INFO] event_detector: ActivityModel: 'Burglary' (31%)  \u26a0 SUSPICIOUS
+2026-06-08 00:51:12 [INFO] event_detector:   \u2192 below alarm threshold (31% < 60%), not alerting
+2026-06-08 00:51:18 [INFO] event_detector: ActivityModel: 'Burglary' (19%)  \u26a0 SUSPICIOUS
+2026-06-08 00:51:18 [INFO] event_detector:   \u2192 below alarm threshold (19% < 60%), not alerting
+2026-06-08 00:51:25 [INFO] event_detector: ActivityModel: 'Burglary' (24%)  \u26a0 SUSPICIOUS
+2026-06-08 00:51:25 [INFO] event_detector:   \u2192 below alarm threshold (24% < 60%), not alerting
+2026-06-08 00:51:30 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:51:30 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:51:31 [INFO] event_detector: ActivityModel: 'Burglary' (35%)  \u26a0 SUSPICIOUS
+2026-06-08 00:51:31 [INFO] event_detector:   \u2192 below alarm threshold (35% < 60%), not alerting
+2026-06-08 00:51:32 [INFO] __main__: Active workers: 1
+2026-06-08 00:51:32 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:51:38 [INFO] event_detector: ActivityModel: 'Burglary' (27%)  \u26a0 SUSPICIOUS
+2026-06-08 00:51:38 [INFO] event_detector:   \u2192 below alarm threshold (27% < 60%), not alerting
+2026-06-08 00:51:46 [INFO] event_detector: ActivityModel: 'Burglary' (39%)  \u26a0 SUSPICIOUS
+2026-06-08 00:51:46 [INFO] event_detector:   \u2192 below alarm threshold (39% < 60%), not alerting
+2026-06-08 00:51:51 [INFO] event_detector: [Escritorio] Event: Tailgating | risk=Medium | conf=0.75
+2026-06-08 00:51:53 [INFO] api_client: Event ingested: Tailgating | risk=Medium | conf=0.75 | cam=Escritorio
+2026-06-08 00:51:54 [INFO] event_detector: ActivityModel: 'Burglary' (23%)  \u26a0 SUSPICIOUS
+2026-06-08 00:51:54 [INFO] event_detector:   \u2192 below alarm threshold (23% < 60%), not alerting
+2026-06-08 00:52:01 [INFO] event_detector: ActivityModel: 'Burglary' (33%)  \u26a0 SUSPICIOUS
+2026-06-08 00:52:01 [INFO] event_detector:   \u2192 below alarm threshold (33% < 60%), not alerting
+2026-06-08 00:52:07 [INFO] event_detector: ActivityModel: 'Burglary' (34%)  \u26a0 SUSPICIOUS
+2026-06-08 00:52:07 [INFO] event_detector:   \u2192 below alarm threshold (34% < 60%), not alerting
+2026-06-08 00:52:15 [INFO] event_detector: ActivityModel: 'Burglary' (39%)  \u26a0 SUSPICIOUS
+2026-06-08 00:52:15 [INFO] event_detector:   \u2192 below alarm threshold (39% < 60%), not alerting
+2026-06-08 00:52:23 [INFO] event_detector: ActivityModel: 'Assault' (35%)  \u26a0 SUSPICIOUS
+2026-06-08 00:52:23 [INFO] event_detector:   \u2192 below alarm threshold (35% < 60%), not alerting
+2026-06-08 00:52:28 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:52:28 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.80
+2026-06-08 00:52:30 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.80 | cam=Escritorio
+2026-06-08 00:52:32 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:52:34 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:52:38 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 00:52:44 [INFO] event_detector: ActivityModel: 'Burglary' (41%)  \u26a0 SUSPICIOUS
+2026-06-08 00:52:44 [INFO] event_detector:   \u2192 below alarm threshold (41% < 60%), not alerting
+2026-06-08 00:52:51 [INFO] event_detector: ActivityModel: 'Assault' (33%)  \u26a0 SUSPICIOUS
+2026-06-08 00:52:51 [INFO] event_detector:   \u2192 below alarm threshold (33% < 60%), not alerting
+2026-06-08 00:52:51 [INFO] event_detector: [Escritorio] Event: Tailgating | risk=Medium | conf=0.75
+2026-06-08 00:52:53 [INFO] api_client: Event ingested: Tailgating | risk=Medium | conf=0.75 | cam=Escritorio
+2026-06-08 00:53:01 [INFO] event_detector: ActivityModel: 'Assault' (41%)  \u26a0 SUSPICIOUS
+2026-06-08 00:53:01 [INFO] event_detector:   \u2192 below alarm threshold (41% < 60%), not alerting
+2026-06-08 00:53:07 [INFO] event_detector: ActivityModel: 'Burglary' (23%)  \u26a0 SUSPICIOUS
+2026-06-08 00:53:07 [INFO] event_detector:   \u2192 below alarm threshold (23% < 60%), not alerting
+2026-06-08 00:53:14 [INFO] event_detector: ActivityModel: 'Assault' (23%)  \u26a0 SUSPICIOUS
+2026-06-08 00:53:14 [INFO] event_detector:   \u2192 below alarm threshold (23% < 60%), not alerting
+2026-06-08 00:53:20 [INFO] event_detector: ActivityModel: 'Burglary' (36%)  \u26a0 SUSPICIOUS
+2026-06-08 00:53:20 [INFO] event_detector:   \u2192 below alarm threshold (36% < 60%), not alerting
+2026-06-08 00:53:27 [INFO] event_detector: ActivityModel: 'Burglary' (38%)  \u26a0 SUSPICIOUS
+2026-06-08 00:53:27 [INFO] event_detector:   \u2192 below alarm threshold (38% < 60%), not alerting
+2026-06-08 00:53:34 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (28%)
+2026-06-08 00:53:40 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (22%)
+2026-06-08 00:53:47 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (19%)
+2026-06-08 00:53:53 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 00:53:53 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.80
+2026-06-08 00:53:55 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.80 | cam=Escritorio
+2026-06-08 00:54:01 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:54:06 [WARNING] stream_reader: Stream disconnected (10 grab failures) — rtsp://localhost:8554/60e8ab287b75
+2026-06-08 00:54:06 [WARNING] stream_reader: Reconnecting in 5s (attempt 1/10)…
+2026-06-08 00:54:11 [INFO] stream_reader: Connecting to RTSP: rtsp://localhost:8554/60e8ab287b75
+2026-06-08 00:54:14 [INFO] stream_reader: Stream connected: rtsp://localhost:8554/60e8ab287b75
+2026-06-08 00:54:14 [WARNING] stream_reader: Stream disconnected (10 grab failures) — rtsp://localhost:8554/60e8ab287b75
+2026-06-08 00:54:14 [WARNING] stream_reader: Reconnecting in 5s (attempt 2/10)…
+2026-06-08 00:54:19 [INFO] stream_reader: Connecting to RTSP: rtsp://localhost:8554/60e8ab287b75
+2026-06-08 00:54:21 [INFO] stream_reader: Stream connected: rtsp://localhost:8554/60e8ab287b75
+2026-06-08 00:54:23 [INFO] event_detector: ActivityModel: 'Burglary' (91%)  \u26a0 SUSPICIOUS
+2026-06-08 00:54:29 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:54:35 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 00:54:41 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:54:47 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:54:53 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:54:53 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-08 00:54:55 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-08 00:55:01 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:07 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:13 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:19 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:26 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:32 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:39 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:44 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:51 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:57 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:55:57 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.82
+2026-06-08 00:55:59 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.82 | cam=Escritorio
+2026-06-08 00:56:05 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:11 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:17 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:23 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:29 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:34 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 00:56:34 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 00:56:35 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:36 [INFO] __main__: Active workers: 1
+2026-06-08 00:56:36 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 00:56:41 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:47 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:53 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:59 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:56:59 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-08 00:57:01 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-08 00:57:06 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:57:13 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:57:18 [INFO] event_detector: ActivityModel: 'Burglary' (22%)  \u26a0 SUSPICIOUS
+2026-06-08 00:57:18 [INFO] event_detector:   \u2192 below alarm threshold (22% < 60%), not alerting
+2026-06-08 00:57:20 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 00:57:22 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 00:57:27 [INFO] event_detector: ActivityModel: 'Meet_and_Split' (26%)
+2026-06-08 00:57:34 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (34%)
+2026-06-08 00:57:40 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (28%)
+2026-06-08 00:57:47 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (22%)
+2026-06-08 00:57:53 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (34%)
+2026-06-08 00:58:00 [INFO] event_detector: ActivityModel: 'Walking_While_Reading_Book' (19%)
+2026-06-08 00:58:09 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:58:09 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.89
+2026-06-08 00:58:11 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.89 | cam=Escritorio
+2026-06-08 00:58:17 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:58:24 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:58:29 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:58:35 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 00:58:42 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 00:58:47 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:58:53 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:58:59 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:05 [INFO] event_detector: ActivityModel: 'Burglary' (90%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:11 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:11 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-08 00:59:13 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-08 00:59:18 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:25 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:30 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:36 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:42 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:48 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:54 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 00:59:59 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:00:05 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:00:12 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:00:12 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.78
+2026-06-08 01:00:14 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.78 | cam=Escritorio
+2026-06-08 01:00:19 [INFO] event_detector: ActivityModel: 'Burglary' (74%)  \u26a0 SUSPICIOUS
+2026-06-08 01:00:25 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 01:00:31 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:00:37 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 01:00:43 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:00:48 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:00:54 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:00 [INFO] event_detector: ActivityModel: 'Burglary' (89%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:06 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:12 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:12 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.82
+2026-06-08 01:01:14 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.82 | cam=Escritorio
+2026-06-08 01:01:20 [INFO] event_detector: ActivityModel: 'Burglary' (59%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:20 [INFO] event_detector:   \u2192 below alarm threshold (59% < 60%), not alerting
+2026-06-08 01:01:26 [INFO] event_detector: ActivityModel: 'Burglary' (72%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:31 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:37 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:38 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 01:01:38 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 01:01:40 [INFO] __main__: Active workers: 1
+2026-06-08 01:01:40 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 01:01:44 [INFO] event_detector: ActivityModel: 'Burglary' (73%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:49 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:01:55 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:00 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:07 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:13 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:13 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.77
+2026-06-08 01:02:15 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.77 | cam=Escritorio
+2026-06-08 01:02:20 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:26 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:32 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:38 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:44 [INFO] event_detector: ActivityModel: 'Burglary' (70%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:50 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-08 01:02:56 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:01 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:07 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:14 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:14 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-08 01:03:16 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-08 01:03:21 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:27 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:32 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:39 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:45 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:50 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:03:56 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 01:03:58 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 01:03:58 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:04 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:10 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:16 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:16 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.86
+2026-06-08 01:04:18 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.86 | cam=Escritorio
+2026-06-08 01:04:23 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:30 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:35 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:41 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:48 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:53 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:04:59 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:05:05 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:05:11 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:05:17 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 01:05:17 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.77
+2026-06-08 01:05:19 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.77 | cam=Escritorio
+2026-06-08 01:05:24 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:05:31 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:05:36 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 01:05:43 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:05:49 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:05:55 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:01 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:06 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:12 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:19 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:19 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.82
+2026-06-08 01:06:21 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.82 | cam=Escritorio
+2026-06-08 01:06:26 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:32 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:38 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:42 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 01:06:42 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 01:06:44 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:44 [INFO] __main__: Active workers: 1
+2026-06-08 01:06:44 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 01:06:50 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:06:55 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:02 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:07 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:13 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:19 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:19 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.85
+2026-06-08 01:07:21 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.85 | cam=Escritorio
+2026-06-08 01:07:27 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:33 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:38 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:45 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:51 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:07:56 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:02 [INFO] event_detector: ActivityModel: 'Burglary' (65%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:08 [INFO] event_detector: ActivityModel: 'Burglary' (70%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:14 [INFO] event_detector: ActivityModel: 'Burglary' (73%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:20 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:20 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.81
+2026-06-08 01:08:22 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.81 | cam=Escritorio
+2026-06-08 01:08:27 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:34 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:39 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:45 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:51 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:08:57 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:03 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:08 [INFO] event_detector: ActivityModel: 'Burglary' (73%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:14 [INFO] event_detector: ActivityModel: 'Burglary' (60%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:20 [INFO] event_detector: ActivityModel: 'Burglary' (62%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:20 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.62
+2026-06-08 01:09:23 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.62 | cam=Escritorio
+2026-06-08 01:09:28 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:34 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:39 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:46 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:52 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 01:09:57 [INFO] event_detector: ActivityModel: 'Burglary' (74%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:03 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:09 [INFO] event_detector: ActivityModel: 'Burglary' (70%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:15 [INFO] event_detector: ActivityModel: 'Burglary' (74%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:21 [INFO] event_detector: ActivityModel: 'Burglary' (63%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:21 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.63
+2026-06-08 01:10:23 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.63 | cam=Escritorio
+2026-06-08 01:10:28 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:34 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:40 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:46 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:52 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 01:10:57 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 01:11:04 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 01:11:09 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:11:15 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:11:21 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:11:21 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.85
+2026-06-08 01:11:23 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.85 | cam=Escritorio
+2026-06-08 01:11:29 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:11:35 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:11:40 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:11:46 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:11:47 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 01:11:47 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 01:11:49 [INFO] __main__: Active workers: 1
+2026-06-08 01:11:49 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 01:11:49 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 01:11:51 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 01:11:55 [INFO] event_detector: ActivityModel: 'Burglary' (73%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:00 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:06 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:11 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:18 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:24 [INFO] event_detector: ActivityModel: 'Burglary' (77%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:24 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.77
+2026-06-08 01:12:26 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.77 | cam=Escritorio
+2026-06-08 01:12:31 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:37 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:43 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:49 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:12:55 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:00 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:07 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:12 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:18 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:24 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:24 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.81
+2026-06-08 01:13:26 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.81 | cam=Escritorio
+2026-06-08 01:13:32 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:38 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:43 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:48 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 01:13:50 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 01:13:52 [INFO] event_detector: ActivityModel: 'Burglary' (81%)  \u26a0 SUSPICIOUS
+2026-06-08 01:13:58 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:14:03 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:14:09 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:14:15 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 01:14:21 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:14:27 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:14:27 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.83
+2026-06-08 01:14:29 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.83 | cam=Escritorio
+2026-06-08 01:14:34 [INFO] event_detector: ActivityModel: 'Burglary' (68%)  \u26a0 SUSPICIOUS
+2026-06-08 01:14:40 [INFO] event_detector: ActivityModel: 'Burglary' (56%)  \u26a0 SUSPICIOUS
+2026-06-08 01:14:40 [INFO] event_detector:   \u2192 below alarm threshold (56% < 60%), not alerting
+2026-06-08 01:14:46 [INFO] event_detector: ActivityModel: 'Burglary' (52%)  \u26a0 SUSPICIOUS
+2026-06-08 01:14:46 [INFO] event_detector:   \u2192 below alarm threshold (52% < 60%), not alerting
+2026-06-08 01:14:51 [INFO] event_detector: [Escritorio] Event: UnknownFace | risk=Medium | conf=0.80
+2026-06-08 01:14:53 [INFO] api_client: Event ingested: UnknownFace | risk=Medium | conf=0.80 | cam=Escritorio
+2026-06-08 01:14:54 [INFO] event_detector: ActivityModel: 'Burglary' (60%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:00 [INFO] event_detector: ActivityModel: 'Burglary' (74%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:06 [INFO] event_detector: ActivityModel: 'Burglary' (59%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:06 [INFO] event_detector:   \u2192 below alarm threshold (59% < 60%), not alerting
+2026-06-08 01:15:12 [INFO] event_detector: ActivityModel: 'Burglary' (67%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:17 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:23 [INFO] event_detector: ActivityModel: 'Burglary' (69%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:29 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:29 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.80
+2026-06-08 01:15:32 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.80 | cam=Escritorio
+2026-06-08 01:15:37 [INFO] event_detector: ActivityModel: 'Burglary' (76%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:43 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:49 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:15:55 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:01 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:06 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:13 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:18 [INFO] event_detector: ActivityModel: 'Burglary' (71%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:24 [INFO] event_detector: ActivityModel: 'Burglary' (82%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:30 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:30 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-08 01:16:33 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-08 01:16:38 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:44 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:50 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 01:16:51 [INFO] api_client: Fetched 1 configured camera(s) from backend
+2026-06-08 01:16:51 [INFO] __main__: Camera list: 1 camera(s)
+2026-06-08 01:16:53 [INFO] __main__: Active workers: 1
+2026-06-08 01:16:53 [INFO] __main__: Next camera refresh in 300s...
+2026-06-08 01:16:56 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:02 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:07 [INFO] event_detector: ActivityModel: 'Burglary' (80%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:13 [INFO] event_detector: ActivityModel: 'Burglary' (75%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:19 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:25 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:31 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:31 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.84
+2026-06-08 01:17:33 [INFO] api_client: Event ingested: Burglary | risk=Critical | conf=0.84 | cam=Escritorio
+2026-06-08 01:17:38 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:45 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:50 [INFO] event_detector: ActivityModel: 'Burglary' (83%)  \u26a0 SUSPICIOUS
+2026-06-08 01:17:56 [INFO] event_detector: ActivityModel: 'Burglary' (87%)  \u26a0 SUSPICIOUS
+2026-06-08 01:18:02 [INFO] event_detector: ActivityModel: 'Burglary' (86%)  \u26a0 SUSPICIOUS
+2026-06-08 01:18:08 [INFO] event_detector: ActivityModel: 'Burglary' (84%)  \u26a0 SUSPICIOUS
+2026-06-08 01:18:14 [INFO] event_detector: ActivityModel: 'Burglary' (85%)  \u26a0 SUSPICIOUS
+2026-06-08 01:18:20 [INFO] event_detector: ActivityModel: 'Burglary' (88%)  \u26a0 SUSPICIOUS
+2026-06-08 01:18:26 [INFO] event_detector: ActivityModel: 'Burglary' (79%)  \u26a0 SUSPICIOUS
+2026-06-08 01:18:32 [INFO] event_detector: ActivityModel: 'Burglary' (78%)  \u26a0 SUSPICIOUS
+2026-06-08 01:18:32 [INFO] event_detector: [Escritorio] Event: Burglary | risk=Critical | conf=0.78
+[h264 @ 0000029be02a5740] error while decoding MB 71 47, bytestream -15

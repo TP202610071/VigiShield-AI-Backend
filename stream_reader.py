@@ -1,23 +1,35 @@
 """
 OpenCV-based RTSP stream reader with automatic reconnection.
-Works with both direct RTSP cameras and MediaMTX RTSP re-exposure.
+
+Key design decisions:
+- TCP transport: avoids 'error while decoding MB bytestream' UDP packet-loss errors.
+- grab() + retrieve() pattern: grab() continuously drains the MediaMTX RTSP output buffer
+  without decoding every frame. This prevents the upstream (MediaMTX/camera) from backing
+  up and producing 'render is too slow' warnings. retrieve() decodes only the frames we
+  actually want to process.
 """
 
+import os
 import cv2
 import logging
 import time
 from typing import Generator
+
+# Force TCP transport BEFORE any VideoCapture is created.
+# UDP (the default) drops packets on busy networks → decode errors.
+os.environ.setdefault("OPENCV_FFMPEG_CAPTURE_OPTIONS", "rtsp_transport;tcp")
+os.environ.setdefault("OPENCV_LOG_LEVEL", "ERROR")
 
 logger = logging.getLogger(__name__)
 
 
 class StreamReader:
     """
-    Connects to an RTSP stream and yields frames.
+    Connects to an RTSP stream and yields frames at a controlled interval.
 
-    Supports both:
-    - Direct camera RTSP:      rtsp://user:pass@192.168.1.100:554/stream
-    - MediaMTX local RTSP:     rtsp://localhost:8554/live/stream-key
+    Reads from:
+    - MediaMTX re-exposure: rtsp://localhost:8554/{stream-key}  (preferred)
+    - Direct camera:        rtsp://user:pass@192.168.1.x:554/path  (fallback)
     """
 
     def __init__(self, rtsp_url: str, reconnect_delay: int = 5, max_reconnects: int = 10):
@@ -29,20 +41,14 @@ class StreamReader:
     # ── Connection ────────────────────────────────────────────────────────────
 
     def connect(self) -> bool:
-        """Open the RTSP connection. Returns True on success."""
-        logger.info(f"Connecting to RTSP: {self._sanitize_url()}")
-
-        # Use FFMPEG backend for better RTSP compatibility
+        logger.info("Connecting to RTSP: %s", self._sanitize_url())
         self._cap = cv2.VideoCapture(self.rtsp_url, cv2.CAP_FFMPEG)
-
-        # Minimize buffer to get the most recent frame
+        # Minimal internal buffer — always get the most recent frame
         self._cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-
         if not self._cap.isOpened():
-            logger.error("Could not open RTSP stream.")
+            logger.error("Could not open stream: %s", self._sanitize_url())
             return False
-
-        logger.info("RTSP stream connected ✅")
+        logger.info("Stream connected: %s", self._sanitize_url())
         return True
 
     def disconnect(self):
@@ -52,40 +58,58 @@ class StreamReader:
 
     # ── Frame reading ─────────────────────────────────────────────────────────
 
-    def read_frame(self) -> tuple[bool, cv2.typing.MatLike | None]:
-        """Read one frame. Returns (success, frame)."""
-        if not self._cap or not self._cap.isOpened():
-            return False, None
-        ret, frame = self._cap.read()
-        return ret, frame if ret else None
-
     def frames(self, interval_seconds: float = 1.0) -> Generator:
         """
-        Generator that yields frames at the specified interval.
-        Handles reconnection automatically.
+        Generator that yields one frame every `interval_seconds`.
+
+        Uses grab() between yields to keep the upstream buffer drained —
+        this prevents MediaMTX from backing up and discarding frames.
+        Only calls retrieve() (which decodes the frame) when we actually
+        want to process a frame.
         """
         reconnect_count = 0
+        consecutive_grab_failures = 0
 
         while True:
+            # ── Re-connect if needed ──────────────────────────────────────────
             if not self._cap or not self._cap.isOpened():
                 if reconnect_count >= self.max_reconnects:
-                    logger.error(f"Max reconnects ({self.max_reconnects}) reached. Giving up.")
+                    logger.error("Max reconnects (%d) reached. Giving up on %s.",
+                                 self.max_reconnects, self._sanitize_url())
                     return
-                logger.warning(f"Reconnecting in {self.reconnect_delay}s (attempt {reconnect_count + 1})")
+                logger.warning("Reconnecting in %ds (attempt %d/%d)…",
+                               self.reconnect_delay, reconnect_count + 1,
+                               self.max_reconnects)
                 time.sleep(self.reconnect_delay)
                 self.connect()
                 reconnect_count += 1
                 continue
 
-            ret, frame = self.read_frame()
-            if not ret:
-                logger.warning("Frame read failed — stream disconnected?")
-                self.disconnect()
-                continue
+            # ── Grab-and-drain loop until interval has elapsed ────────────────
+            deadline = time.monotonic() + interval_seconds
+            got_frame = False
 
-            reconnect_count = 0  # reset on successful read
-            yield frame
-            time.sleep(interval_seconds)
+            while time.monotonic() < deadline:
+                grabbed = self._cap.grab()
+                if not grabbed:
+                    consecutive_grab_failures += 1
+                    if consecutive_grab_failures >= 10:
+                        logger.warning("Stream disconnected (%d grab failures) — %s",
+                                       consecutive_grab_failures, self._sanitize_url())
+                        self.disconnect()
+                        consecutive_grab_failures = 0
+                        break
+                    time.sleep(0.02)
+                    continue
+                consecutive_grab_failures = 0
+                got_frame = True  # at least one good grab in this window
+
+            # ── Decode and yield only when we have a frame ────────────────────
+            if got_frame and self._cap and self._cap.isOpened():
+                ret, frame = self._cap.retrieve()
+                if ret and frame is not None:
+                    reconnect_count = 0
+                    yield frame
 
     # ── Context manager ───────────────────────────────────────────────────────
 
@@ -96,9 +120,6 @@ class StreamReader:
     def __exit__(self, *_):
         self.disconnect()
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
-
     def _sanitize_url(self) -> str:
-        """Return URL with password masked for safe logging."""
         import re
         return re.sub(r"://([^:]+):([^@]+)@", r"://\1:***@", self.rtsp_url)
