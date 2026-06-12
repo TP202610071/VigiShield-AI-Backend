@@ -123,7 +123,11 @@ class _FrameHandler(http.server.BaseHTTPRequestHandler):
 
 def start_server(port: int = 5050) -> http.server.HTTPServer:
     """Start the frame HTTP server in a background daemon thread."""
-    server = http.server.HTTPServer(("0.0.0.0", port), _FrameHandler)
+    # ThreadingHTTPServer: each request gets its own thread, so a slow client
+    # (e.g. the phone fetching a 1080p JPEG over the internet) can't block the
+    # whole server / other pollers. Single-threaded HTTPServer head-of-line
+    # blocks under the app's /frame + /status polling and hangs all clients.
+    server = http.server.ThreadingHTTPServer(("0.0.0.0", port), _FrameHandler)
     thread = threading.Thread(
         target=server.serve_forever,
         daemon=True,
