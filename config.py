@@ -29,6 +29,15 @@ FACES_DIR: Path = Path(os.getenv(
 
 # ── Detection thresholds ──────────────────────────────────────────────────────
 ACTIVITY_CONFIDENCE_THRESHOLD: float = float(os.getenv("ACTIVITY_CONFIDENCE_THRESHOLD", "0.60"))
+
+# Activity EVENTS (alarms persisted to the backend) are gated MUCH harder than the
+# on-screen banner. The UCF-Crime-style activity model was trained on street/store
+# CCTV, so on a domestic indoor scene it over-fires "Burglary/Robbery". To ingest an
+# activity event we now require ALL of: a person actually in frame, this confidence,
+# AND the suspicious prediction to persist across this many consecutive inferences.
+ACTIVITY_EVENT_CONFIDENCE: float = float(os.getenv("ACTIVITY_EVENT_CONFIDENCE", "0.85"))
+ACTIVITY_EVENT_MIN_STREAK: int = int(os.getenv("ACTIVITY_EVENT_MIN_STREAK", "2"))
+
 YOLO_CONFIDENCE_THRESHOLD: float = float(os.getenv("YOLO_CONFIDENCE_THRESHOLD", "0.50"))
 FACE_DISTANCE_THRESHOLD: float = float(os.getenv("FACE_DISTANCE_THRESHOLD", "0.45"))
 

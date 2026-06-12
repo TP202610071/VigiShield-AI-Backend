@@ -183,11 +183,15 @@ class ActivityDetector:
 
         self._buffer: deque[np.ndarray] = deque(maxlen=self.WINDOW_FRAMES)
         self._since_last = 0
+        # Consecutive inferences that looked like a real alarm (person in frame +
+        # high confidence). An activity event is only emitted once this clears the
+        # configured minimum, which kills the model's transient false spikes.
+        self._streak = 0
         # Latest prediction, exposed for the on-frame banner / app status. Holds
         # between inferences (which only happen every STEP_FRAMES frames).
         self.last_status: dict = {"label": "—", "confidence": 0.0, "suspicious": False}
 
-    def push_frame(self, bgr_frame: np.ndarray) -> dict | None:
+    def push_frame(self, bgr_frame: np.ndarray, persons_present: bool = False) -> dict | None:
         """Feed one BGR frame; returns event dict when a suspicious clip alarms."""
         rgb = cv2.resize(
             cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2RGB),
@@ -200,9 +204,9 @@ class ActivityDetector:
             return None
 
         self._since_last = 0
-        return self._infer()
+        return self._infer(persons_present)
 
-    def _infer(self) -> dict | None:
+    def _infer(self, persons_present: bool = False) -> dict | None:
         frames = self._preprocess(np.array(self._buffer).copy())
         probs = self._model.predict(np.expand_dims(frames, 0), verbose=0)[0]
         # Pick the highest-probability class that ISN'T excluded, so an excluded
@@ -227,11 +231,20 @@ class ActivityDetector:
             "  ⚠ SUSPICIOUS" if is_suspicious else "",
         )
 
-        if not is_suspicious:
-            return None
-        if confidence < config.ACTIVITY_CONFIDENCE_THRESHOLD:
-            logger.info("  → below alarm threshold (%.0f%% < %.0f%%), not alerting",
-                        confidence * 100, config.ACTIVITY_CONFIDENCE_THRESHOLD * 100)
+        # ── Hard event gate (config.ACTIVITY_EVENT_*) ─────────────────────────
+        # The banner above still shows whatever the model predicts, but to PERSIST
+        # an event we require a person in frame + high confidence + persistence
+        # across consecutive inferences. This is the fix for the domestic-scene
+        # false "Burglary/Robbery" spam (the model is noisy on empty/indoor scenes).
+        alarm = (is_suspicious
+                 and persons_present
+                 and confidence >= config.ACTIVITY_EVENT_CONFIDENCE)
+        self._streak = self._streak + 1 if alarm else 0
+        if not alarm or self._streak < config.ACTIVITY_EVENT_MIN_STREAK:
+            if is_suspicious:
+                logger.info("  → suppressed (conf=%.0f%% person=%s streak=%d/%d)",
+                            confidence * 100, persons_present,
+                            self._streak, config.ACTIVITY_EVENT_MIN_STREAK)
             return None
 
         event_type, risk_level = _ACTIVITY_EVENT_MAP.get(raw_name, ("PhysicalAggression", "High"))
@@ -545,7 +558,7 @@ class EventDetector:
 
         # ── Activity model ────────────────────────────────────────────────────
         if self._activity:
-            ev = self._activity.push_frame(frame)
+            ev = self._activity.push_frame(frame, persons_present=len(persons) > 0)
             if ev:
                 candidates.append(ev)
         if self._activity:
