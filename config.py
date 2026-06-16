@@ -63,6 +63,36 @@ MEDIAMTX_RTSP_URL: str | None = os.getenv("MEDIAMTX_RTSP_URL", "rtsp://localhost
 FRAME_INTERVAL_SECONDS: float = float(os.getenv("FRAME_INTERVAL_SECONDS", "0.5"))
 CAMERA_REFRESH_INTERVAL: int = int(os.getenv("CAMERA_REFRESH_INTERVAL", "300"))
 
+# ── Event snapshots ───────────────────────────────────────────────────────────
+# When an event fires we save a JPEG of the moment so the app's history can show
+# a real photo. Files are written here and served by frame_server at /event/{name},
+# which nginx exposes over HTTPS at EVENT_SNAPSHOT_BASE_URL.
+EVENT_SNAPSHOT_DIR: str = os.getenv(
+    "EVENT_SNAPSHOT_DIR",
+    str(Path(__file__).parent / "event_snapshots"),
+)
+EVENT_SNAPSHOT_BASE_URL: str = os.getenv(
+    "EVENT_SNAPSHOT_BASE_URL", "https://api-ai.vigishield.app/ai/event"
+).rstrip("/")
+EVENT_SNAPSHOT_RETENTION_DAYS: int = int(os.getenv("EVENT_SNAPSHOT_RETENTION_DAYS", "14"))
+
+# How often (seconds) each camera worker re-reads its household's alert toggles
+# from the backend so disabling an alert in the app takes effect without a restart.
+ALERT_CONFIG_REFRESH_SECONDS: int = int(os.getenv("ALERT_CONFIG_REFRESH_SECONDS", "60"))
+
+# Seconds of video to record from the camera when an event fires (0 = disabled).
+EVENT_CLIP_SECONDS: int = int(os.getenv("EVENT_CLIP_SECONDS", "6"))
+
+# ── Cloudflare R2 (S3-compatible) media storage ───────────────────────────────
+# Event snapshots and clips are uploaded here and served from the public domain.
+# Credentials come from .env (never commit them). When unset, media falls back to
+# being served locally by the frame server at /ai/event.
+R2_ENDPOINT: str = os.getenv("R2_ENDPOINT", "")
+R2_ACCESS_KEY_ID: str = os.getenv("R2_ACCESS_KEY_ID", "")
+R2_SECRET_ACCESS_KEY: str = os.getenv("R2_SECRET_ACCESS_KEY", "")
+R2_BUCKET: str = os.getenv("R2_BUCKET", "vigishield-bucket")
+R2_PUBLIC_BASE_URL: str = os.getenv("R2_PUBLIC_BASE_URL", "https://bucket.vigishield.app").rstrip("/")
+
 # ── Logging ───────────────────────────────────────────────────────────────────
 LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 logging.basicConfig(

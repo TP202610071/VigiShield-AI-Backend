@@ -15,11 +15,19 @@ Start with start_server(port=5050). Store frames with store_frame(camera_id, jpe
 import http.server
 import json
 import logging
+import os
+import re
 import threading
 import time
 from typing import Optional
 
+import config
+
 logger = logging.getLogger(__name__)
+
+# Event snapshot filenames are "YYYYMMDD_<12 hex>.jpg" — validate to block any
+# path traversal on the /event/{name} route.
+_SNAPSHOT_NAME_RE = re.compile(r"^[0-9]{8}_[0-9a-f]{12}\.jpg$")
 
 _frames: dict[str, bytes] = {}
 _status: dict[str, dict] = {}
@@ -88,6 +96,28 @@ class _FrameHandler(http.server.BaseHTTPRequestHandler):
                 self.wfile.write(frame)
             else:
                 self.send_error(404, "No frame available yet for this camera")
+            return
+
+        if len(path) == 2 and path[0] == "event":
+            name = path[1]
+            if not _SNAPSHOT_NAME_RE.match(name):
+                self.send_error(404, "Not found")
+                return
+            fpath = os.path.join(config.EVENT_SNAPSHOT_DIR, name)
+            try:
+                with open(fpath, "rb") as f:
+                    data = f.read()
+            except OSError:
+                self.send_error(404, "Snapshot not found")
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "image/jpeg")
+            self.send_header("Content-Length", str(len(data)))
+            # Snapshots are immutable once written — let the app/browser cache them.
+            self.send_header("Cache-Control", "public, max-age=86400")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(data)
             return
 
         if len(path) == 2 and path[0] == "status":

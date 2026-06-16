@@ -37,6 +37,28 @@ def get_all_cameras() -> list[dict]:
     return []
 
 
+def get_alert_config(household_id: str) -> dict | None:
+    """
+    Fetch a household's alert toggle config so the pipeline can suppress events
+    the user has disabled in the app. Returns the dict
+    {unknownPersonEnabled, forcedAccessEnabled, tailgatingEnabled,
+     climbingEnabled, aggressionEnabled, ...} or None on failure (caller then
+     treats all alerts as enabled — fail-open, never silently drop everything).
+    """
+    try:
+        resp = requests.get(
+            f"{BACKEND_API_URL}/api/stream/ai-alert-config",
+            headers=_HEADERS,
+            params={"householdId": household_id},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as e:
+        logger.warning("Could not fetch alert config for %s: %s", household_id, e)
+    return None
+
+
 def get_authorized_faces(household_id: str) -> list[dict]:
     """
     Fetch authorized face profiles for a household.
@@ -146,3 +168,20 @@ def ingest_event(
     except Exception as e:
         logger.error("Unexpected error ingesting event: %s", e)
     return None
+
+
+def attach_clip(event_id: str, video_clip_path: str) -> bool:
+    """Attach a recorded video clip URL to an already-ingested event."""
+    try:
+        resp = requests.post(
+            f"{BACKEND_API_URL}/api/events/{event_id}/clip",
+            json={"videoClipPath": video_clip_path},
+            headers=_HEADERS,
+            timeout=15,
+        )
+        resp.raise_for_status()
+        logger.info("Clip attached to event %s", event_id)
+        return True
+    except Exception as e:
+        logger.error("Failed to attach clip to event %s: %s", event_id, e)
+        return False

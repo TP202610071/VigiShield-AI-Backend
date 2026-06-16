@@ -24,8 +24,19 @@ import requests as _requests
 
 import config  # loads .env, configures logging, adds CUDA DLL dir
 import frame_server
-from api_client import get_all_cameras, ingest_event, sync_faces
-from event_detector import EventDetector
+from api_client import (
+    attach_clip,
+    get_alert_config,
+    get_all_cameras,
+    ingest_event,
+    sync_faces,
+)
+from event_detector import (
+    EventDetector,
+    capture_event_snapshot,
+    disabled_event_types,
+    record_event_clip,
+)
 from stream_reader import StreamReader
 
 logger = logging.getLogger(__name__)
@@ -92,6 +103,11 @@ class CameraWorker(threading.Thread):
             camera_name=camera_name,
         )
 
+        # Household alert toggles — refreshed lazily so disabling an alert in the
+        # app suppresses those event types within ALERT_CONFIG_REFRESH_SECONDS.
+        disabled_types: set[str] = set()
+        last_alert_fetch = 0.0
+
         while not self._stop_event.is_set():
             try:
                 with StreamReader(rtsp_url) as reader:
@@ -108,8 +124,42 @@ class CameraWorker(threading.Thread):
                             break
 
                         events = detector.process_frame(frame)
+                        if not events:
+                            continue
+
+                        # Refresh the household's alert toggles, then drop disabled types.
+                        now = time.monotonic()
+                        if now - last_alert_fetch > config.ALERT_CONFIG_REFRESH_SECONDS:
+                            disabled_types = disabled_event_types(get_alert_config(household_id))
+                            last_alert_fetch = now
+                        events = [e for e in events if e["event_type"] not in disabled_types]
+                        if not events:
+                            logger.info("[%s] All %d event(s) suppressed by alert config",
+                                        camera_name, len(disabled_types))
+                            continue
+
+                        # One snapshot of the moment (with detection boxes drawn),
+                        # shared by every event in this batch.
+                        snap_url = capture_event_snapshot(
+                            frame, camera_name,
+                            label=events[0]["event_type"], draw=detector.last_draw)
+                        first_event_id = None
                         for ev in events:
-                            ingest_event(**ev)
+                            if snap_url:
+                                ev["image_capture_path"] = snap_url
+                            result = ingest_event(**ev)
+                            if first_event_id is None and isinstance(result, dict):
+                                first_event_id = result.get("id")
+
+                        # Record a short clip in the background and attach it to the
+                        # event once uploaded (so the live alert isn't delayed).
+                        if first_event_id and config.EVENT_CLIP_SECONDS > 0:
+                            threading.Thread(
+                                target=_record_and_attach_clip,
+                                args=(rtsp_url, first_event_id),
+                                daemon=True,
+                                name=f"clip-{first_event_id[:8]}",
+                            ).start()
 
             except Exception as e:
                 logger.error("[%s] Pipeline error: %s — restarting in 10s", camera_name, e, exc_info=True)
@@ -202,6 +252,13 @@ def main():
         logger.info("Shutdown requested — stopping all workers...")
         manager.stop_all()
         logger.info("Goodbye.")
+
+
+def _record_and_attach_clip(rtsp_url: str, event_id: str) -> None:
+    """Background: record a short clip, upload to R2, attach its URL to the event."""
+    url = record_event_clip(rtsp_url, config.EVENT_CLIP_SECONDS)
+    if url:
+        attach_clip(event_id, url)
 
 
 def _mask_url(url: str) -> str:

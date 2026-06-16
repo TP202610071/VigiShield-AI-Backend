@@ -16,7 +16,9 @@ app can show a live "suspicious" banner without reading pixels.
 
 import json
 import logging
+import os
 import time
+import uuid
 from collections import deque
 from datetime import datetime
 from pathlib import Path
@@ -27,6 +29,148 @@ import numpy as np
 import config
 
 logger = logging.getLogger(__name__)
+
+
+# ── Event snapshots ───────────────────────────────────────────────────────────
+# Saved when an event fires so the app's history shows a real photo of the moment.
+
+_snapshot_dir_ready = False
+
+
+def _ensure_snapshot_dir() -> None:
+    global _snapshot_dir_ready
+    if not _snapshot_dir_ready:
+        os.makedirs(config.EVENT_SNAPSHOT_DIR, exist_ok=True)
+        _snapshot_dir_ready = True
+
+
+def _prune_old_snapshots() -> None:
+    """Delete snapshots older than the retention window so the disk can't fill."""
+    try:
+        cutoff = time.time() - config.EVENT_SNAPSHOT_RETENTION_DAYS * 86400
+        for fn in os.listdir(config.EVENT_SNAPSHOT_DIR):
+            if not fn.endswith(".jpg"):
+                continue
+            p = os.path.join(config.EVENT_SNAPSHOT_DIR, fn)
+            try:
+                if os.path.getmtime(p) < cutoff:
+                    os.remove(p)
+            except OSError:
+                pass
+    except FileNotFoundError:
+        pass
+
+
+def _draw_detections(img: np.ndarray, draw: dict | None) -> None:
+    """Draw the boxes that triggered/were present in the event onto [img]."""
+    if not draw:
+        return
+    for o in draw.get("objects", []):
+        _draw_box(img, o["xyxy"], _COLOR_OBJECT, f"{o['name']} {o['conf']*100:.0f}%")
+    for p in draw.get("persons", []):
+        _draw_box(img, p["xyxy"], _COLOR_PERSON, f"person {p['conf']*100:.0f}%")
+    for f in draw.get("faces", []):
+        col = _COLOR_FACE_KNOWN if f.get("known") else _COLOR_FACE_UNKNOWN
+        _draw_box(img, f["box"], col, f.get("name", "?"))
+    for w in draw.get("weapons", []):  # weapons last/on top, thicker
+        _draw_box(img, w["xyxy"], _COLOR_WEAPON, f"{w['name']} {w['conf']*100:.0f}%", thick=3)
+
+
+def capture_event_snapshot(frame_bgr: np.ndarray, camera_name: str,
+                           label: str = "", draw: dict | None = None) -> str | None:
+    """Build a captioned JPEG of the event moment (with detection rectangles),
+    upload it to R2 and return its public URL. Falls back to local serving
+    (frame server /ai/event) when R2 isn't configured."""
+    try:
+        import r2_client
+
+        img = frame_bgr.copy()
+        h, w = img.shape[:2]
+        # Detection rectangles first, then the caption bar on top.
+        _draw_detections(img, draw)
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        caption = f"{ts}  |  {camera_name}"
+        if label:
+            caption += f"  |  {label}"
+        cv2.rectangle(img, (0, 0), (w, 30), (0, 0, 0), -1)
+        cv2.putText(img, caption, (10, 21), cv2.FONT_HERSHEY_SIMPLEX, 0.55,
+                    (255, 255, 255), 1, cv2.LINE_AA)
+
+        name = f"{datetime.now():%Y%m%d}_{uuid.uuid4().hex[:12]}.jpg"
+        ok, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 80])
+        if not ok:
+            return None
+        data = buf.tobytes()
+
+        # Prefer R2 (cloud storage); fall back to local file served by frame_server.
+        url = r2_client.upload_bytes(data, f"events/{name}", "image/jpeg")
+        if url:
+            return url
+        _ensure_snapshot_dir()
+        with open(os.path.join(config.EVENT_SNAPSHOT_DIR, name), "wb") as f:
+            f.write(data)
+        return f"{config.EVENT_SNAPSHOT_BASE_URL}/{name}"
+    except Exception as e:
+        logger.warning("Failed to save event snapshot: %s", e)
+        return None
+
+
+def record_event_clip(rtsp_url: str, seconds: int) -> str | None:
+    """Record a short clip from the camera's RTSP feed (no re-encode) and upload
+    it to R2. Returns the public URL, or None on failure. Blocking — call from a
+    background thread so detection keeps running."""
+    import subprocess
+
+    import r2_client
+
+    try:
+        _ensure_snapshot_dir()
+        name = f"{datetime.now():%Y%m%d}_{uuid.uuid4().hex[:12]}.mp4"
+        path = os.path.join(config.EVENT_SNAPSHOT_DIR, name)
+        cmd = [
+            "ffmpeg", "-y", "-rtsp_transport", "tcp", "-i", rtsp_url,
+            "-t", str(seconds), "-c", "copy", "-an",
+            "-movflags", "+faststart", path,
+        ]
+        subprocess.run(cmd, timeout=seconds + 25,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if not os.path.exists(path) or os.path.getsize(path) < 1024:
+            logger.warning("Event clip recording produced no usable file")
+            return None
+        url = r2_client.upload_file(path, f"clips/{name}", "video/mp4")
+        try:
+            os.remove(path)  # R2 is the source of truth; don't keep clips locally
+        except OSError:
+            pass
+        return url
+    except Exception as e:
+        logger.warning("Failed to record/upload event clip: %s", e)
+        return None
+
+
+# ── Alert config → suppressed event types ─────────────────────────────────────
+# Maps the 5 app alert toggles onto the backend EventType values they govern.
+# FaceRecognized (a positive event) and WeaponDetected (always safety-critical)
+# are never suppressed.
+_ALERT_TOGGLE_EVENTS: dict[str, set[str]] = {
+    "unknownPersonEnabled": {"UnknownFace", "RecurrentUnknownFace", "LowConfidenceFace"},
+    "forcedAccessEnabled":  {"ForcedAccessAttempt", "LockpickingAttempt"},
+    "tailgatingEnabled":    {"Tailgating"},
+    "climbingEnabled":      {"Climbing"},
+    "aggressionEnabled":    {"PhysicalAggression", "Assault", "Abuse", "Robbery",
+                             "Stealing", "Vandalism", "Burglary", "Arson", "Arrest"},
+}
+
+
+def disabled_event_types(alert_config: dict | None) -> set[str]:
+    """Event types the household has turned OFF. None/empty → suppress nothing."""
+    if not alert_config:
+        return set()
+    disabled: set[str] = set()
+    for toggle, events in _ALERT_TOGGLE_EVENTS.items():
+        if alert_config.get(toggle, True) is False:
+            disabled |= events
+    return disabled
 
 # ── COCO class IDs of security-relevant objects ───────────────────────────────
 # yolov8n is trained on COCO 80 classes. Guns are NOT in COCO so we use
@@ -524,6 +668,9 @@ class EventDetector:
 
         self._behavior = BehaviorAnalyzer()
         self._last_event_time: dict[str, float] = {}
+        # Latest detections, kept so an event snapshot can be drawn with the boxes
+        # that triggered it (persons/weapons/objects/faces).
+        self.last_draw: dict | None = None
 
         logger.info(
             "[%s] Pipeline ready — Activity:%s  YOLO:%s  Face:%s  Behavior:ON",
@@ -555,6 +702,11 @@ class EventDetector:
             if ev:
                 candidates.append(ev)
         faces = self._face.faces if self._face else []
+
+        # Keep the current detections for event snapshots (drawn with boxes).
+        self.last_draw = {
+            "persons": persons, "weapons": weapons, "objects": objects, "faces": faces,
+        }
 
         # ── Activity model ────────────────────────────────────────────────────
         if self._activity:
