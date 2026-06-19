@@ -1,0 +1,27 @@
+# ── Secrets (NEVER commit — use .env.example as the template) ───────────────
+.env
+.env.local
+.env.*.local
+
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ── Models / weights (large binaries) ───────────────────────────────────────
+*.pt
+*.onnx
+*.h5
+*.pb
+models/
+
+# ── Runtime data (camera media, face cache) ─────────────────────────────────
+known_faces/
+event_snapshots/
+*.jpg
+*.jpeg
+*.mp4
+*.log
