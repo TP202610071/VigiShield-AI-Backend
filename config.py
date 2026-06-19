@@ -12,6 +12,13 @@ load_dotenv()
 BACKEND_API_URL: str = os.getenv("BACKEND_API_URL", "http://localhost:5020")
 INTERNAL_API_KEY: str = os.getenv("INTERNAL_API_KEY", "dev-internal-api-key-12345")
 
+# Shared HS256 secret with the main backend. Used by the frame server's /authcheck
+# endpoint (consumed by nginx auth_request) to validate viewer JWTs before serving
+# camera frames/HLS. Must equal the main backend's Jwt:Secret.
+JWT_SECRET: str = os.getenv("JWT_SECRET", "")
+JWT_ISSUER: str = os.getenv("JWT_ISSUER", "VigiShield")
+JWT_AUDIENCE: str = os.getenv("JWT_AUDIENCE", "VigiShieldApp")
+
 # ── Model paths ───────────────────────────────────────────────────────────────
 ACTIVITY_MODEL_PATH: str = os.getenv(
     "ACTIVITY_MODEL_PATH",

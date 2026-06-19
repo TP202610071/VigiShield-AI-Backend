@@ -12,6 +12,9 @@ Endpoint:
 Start with start_server(port=5050). Store frames with store_frame(camera_id, jpeg_bytes).
 """
 
+import base64
+import hashlib
+import hmac
 import http.server
 import json
 import logging
@@ -24,6 +27,59 @@ from typing import Optional
 import config
 
 logger = logging.getLogger(__name__)
+
+
+def _b64url_decode(seg: str) -> bytes:
+    """Decode a base64url segment, restoring missing padding."""
+    pad = "=" * (-len(seg) % 4)
+    return base64.urlsafe_b64decode(seg + pad)
+
+
+def validate_jwt(token: Optional[str]) -> bool:
+    """Validate an HS256 JWT issued by the main backend.
+
+    Checks the signature (shared JWT_SECRET), expiry, issuer and audience. This is
+    what gates camera frames/HLS: only a logged-in VigiShield user holds a token
+    the backend signed, so anonymous viewers are rejected by nginx auth_request.
+    """
+    secret = config.JWT_SECRET
+    if not secret or not token:
+        return False
+    token = token.strip()
+    if token.lower().startswith("bearer "):
+        token = token[7:].strip()
+    parts = token.split(".")
+    if len(parts) != 3:
+        return False
+    header_b64, payload_b64, sig_b64 = parts
+    try:
+        header = json.loads(_b64url_decode(header_b64))
+        if header.get("alg") != "HS256":
+            return False
+        expected = hmac.new(
+            secret.encode("utf-8"),
+            f"{header_b64}.{payload_b64}".encode("ascii"),
+            hashlib.sha256,
+        ).digest()
+        if not hmac.compare_digest(expected, _b64url_decode(sig_b64)):
+            return False
+        payload = json.loads(_b64url_decode(payload_b64))
+    except Exception:
+        return False
+    # Expiry (exp is NumericDate / seconds since epoch)
+    exp = payload.get("exp")
+    if exp is None or time.time() >= float(exp):
+        return False
+    if config.JWT_ISSUER and payload.get("iss") != config.JWT_ISSUER:
+        return False
+    aud = payload.get("aud")
+    if config.JWT_AUDIENCE:
+        aud_ok = (aud == config.JWT_AUDIENCE) or (
+            isinstance(aud, list) and config.JWT_AUDIENCE in aud
+        )
+        if not aud_ok:
+            return False
+    return True
 
 # Event snapshot filenames are "YYYYMMDD_<12 hex>.jpg" — validate to block any
 # path traversal on the /event/{name} route.
@@ -81,6 +137,20 @@ class _FrameHandler(http.server.BaseHTTPRequestHandler):
 
         if path == ["health"]:
             self._ok_text("VigiShield AI Frame Server OK")
+            return
+
+        # Auth gate for nginx auth_request. nginx forwards the viewer's token in the
+        # Authorization header (app/hls.js) or X-Vs-Token (from the ?token= query on
+        # the /watch page). 204 = allow, 401 = deny. No body either way.
+        if path == ["authcheck"]:
+            token = self.headers.get("Authorization") or self.headers.get("X-Vs-Token")
+            if validate_jwt(token):
+                self.send_response(204)
+                self.end_headers()
+            else:
+                self.send_response(401)
+                self.send_header("Content-Length", "0")
+                self.end_headers()
             return
 
         if len(path) == 2 and path[0] == "frame":
@@ -157,12 +227,15 @@ def start_server(port: int = 5050) -> http.server.HTTPServer:
     # (e.g. the phone fetching a 1080p JPEG over the internet) can't block the
     # whole server / other pollers. Single-threaded HTTPServer head-of-line
     # blocks under the app's /frame + /status polling and hangs all clients.
-    server = http.server.ThreadingHTTPServer(("0.0.0.0", port), _FrameHandler)
+    # Bind to loopback only: the frame server is reachable exclusively through the
+    # nginx HTTPS reverse proxy (/ai/…), which enforces auth_request. This kills the
+    # direct, unauthenticated :5050 exposure to the internet.
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", port), _FrameHandler)
     thread = threading.Thread(
         target=server.serve_forever,
         daemon=True,
         name="vigishield-frame-server",
     )
     thread.start()
-    logger.info("AI Frame server → http://0.0.0.0:%d/frame/{camera_id}", port)
+    logger.info("AI Frame server → http://127.0.0.1:%d/frame/{camera_id} (loopback only)", port)
     return server
