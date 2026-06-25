@@ -81,6 +81,42 @@ def validate_jwt(token: Optional[str]) -> bool:
             return False
     return True
 
+
+# ── Short stream token (for RTSP read auth) ──────────────────────────────────
+# A full JWT can't be used as an RTSP password: ffmpeg/libmpv truncates RTSP URL
+# credentials at ~120 chars, so the backend JWT (190–400 chars) gets chopped and
+# never validates. Instead, authenticated users fetch this compact signed token
+# ("<exp>.<sig>", ~38 chars) from the nginx-gated /ai/stream-token and pass it as
+# the RTSP password. It's an HMAC of the expiry under the shared JWT_SECRET — so
+# it's still a per-session, expiring, server-signed credential, just short enough
+# to survive the RTSP credential buffer.
+STREAM_TOKEN_TTL_SECONDS = 12 * 3600
+
+
+def _sign_stream_exp(exp: int) -> str:
+    mac = hmac.new(
+        config.JWT_SECRET.encode("utf-8"), str(exp).encode("ascii"), hashlib.sha256
+    ).digest()
+    return base64.urlsafe_b64encode(mac).rstrip(b"=").decode()[:27]
+
+
+def make_stream_token(ttl_seconds: int = STREAM_TOKEN_TTL_SECONDS):
+    """Return (token, exp) for a short signed RTSP read token."""
+    exp = int(time.time()) + ttl_seconds
+    return f"{exp}.{_sign_stream_exp(exp)}", exp
+
+
+def validate_stream_token(token: Optional[str]) -> bool:
+    if not config.JWT_SECRET or not token:
+        return False
+    exp_str, _, sig = token.strip().partition(".")
+    if not exp_str.isdigit() or not sig:
+        return False
+    if time.time() >= int(exp_str):
+        return False
+    return hmac.compare_digest(sig, _sign_stream_exp(int(exp_str)))
+
+
 # Event snapshot filenames are "YYYYMMDD_<12 hex>.jpg" — validate to block any
 # path traversal on the /event/{name} route.
 _SNAPSHOT_NAME_RE = re.compile(r"^[0-9]{8}_[0-9a-f]{12}\.jpg$")
@@ -153,6 +189,21 @@ class _FrameHandler(http.server.BaseHTTPRequestHandler):
                 self.end_headers()
             return
 
+        # Issue a short RTSP read token. Reached via nginx /ai/stream-token, which
+        # auth_request-gates it with the viewer JWT — so any caller that gets here
+        # is already authenticated. The app passes this token as the RTSP password.
+        if path == ["stream-token"]:
+            token, exp = make_stream_token()
+            body = json.dumps({"token": token, "exp": exp}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
         if len(path) == 2 and path[0] == "frame":
             camera_id = path[1]
             frame = _get_frame(camera_id)
@@ -208,6 +259,49 @@ class _FrameHandler(http.server.BaseHTTPRequestHandler):
             return
 
         self.send_error(404, "Not found")
+
+    def do_POST(self):
+        path = self.path.strip("/").split("/")
+        if path == ["rtsp-auth"]:
+            self._handle_rtsp_auth()
+            return
+        self.send_error(404, "Not found")
+
+    def _handle_rtsp_auth(self):
+        """MediaMTX external-auth callback (authHTTPAddress).
+
+        Called by MediaMTX on every RTSP/RTMP read so external viewers must
+        present a valid viewer JWT (passed as the RTSP password →
+        rtsp://viewer:<jwt>@host:8554/<key>). This keeps low-latency RTSP working
+        for the app while denying anonymous internet viewers. 20x = allow.
+
+        - publish: allowed (the home relay publishes anonymously; also listed in
+          authHTTPExclude so this branch is belt-and-suspenders).
+        - read/playback: allowed from localhost (AI reader + nginx HLS muxer) or
+          with a valid JWT in the password.
+        - api/metrics/pprof: localhost only.
+        """
+        try:
+            length = int(self.headers.get("Content-Length", 0) or 0)
+            data = json.loads(self.rfile.read(length) or b"{}") if length else {}
+        except Exception:
+            data = {}
+        ip = (data.get("ip") or "").strip()
+        action = (data.get("action") or "").strip()
+        password = data.get("password") or ""
+        is_local = ip in ("127.0.0.1", "::1", "::ffff:127.0.0.1")
+        if action in ("api", "metrics", "pprof"):
+            allow = is_local
+        elif action == "publish":
+            allow = True
+        elif action in ("read", "playback"):
+            # External viewers present the short stream token as the RTSP password.
+            allow = is_local or validate_stream_token(password) or validate_jwt(password)
+        else:
+            allow = False
+        self.send_response(200 if allow else 401)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def _ok_text(self, text: str) -> None:
         body = text.encode()
