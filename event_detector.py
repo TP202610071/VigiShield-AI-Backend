@@ -184,8 +184,24 @@ _PERSON_CLASS = 0
 
 # Visibility threshold: draw boxes at a low conf so held/occluded objects show.
 # Alarm threshold: only raise a WeaponDetected EVENT at a higher conf.
-_YOLO_DRAW_CONF = 0.30
+_YOLO_DRAW_CONF = 0.35
 _WEAPON_ALARM_CONF = 0.45
+
+
+def _confident_persons(persons: list[dict], frame_shape) -> list[dict]:
+    """Subset of person detections solid enough to drive EVENT logic (loitering,
+    activity, face recognition). Filters out low-confidence / tiny (far) blobs
+    that cause false 'unknown person' and 'prowler' events."""
+    h = frame_shape[0]
+    out = []
+    for p in persons:
+        if p["conf"] < config.PERSON_EVENT_CONFIDENCE:
+            continue
+        _, y1, _, y2 = p["xyxy"]
+        if (y2 - y1) < config.PERSON_MIN_HEIGHT_FRAC * h:
+            continue
+        out.append(p)
+    return out
 
 # Colors are BGR (OpenCV).
 _COLOR_PERSON = (90, 220, 90)
@@ -434,7 +450,12 @@ class YoloDetector:
             elif cls_id in _WEAPON_CLASSES:
                 kind, name = "weapon", _WEAPON_CLASSES[cls_id]
             else:
-                kind, name = "object", self._names.get(cls_id, str(cls_id))
+                name = self._names.get(cls_id, str(cls_id))
+                # Drop generic objects not on the allowlist so misclassifications
+                # (door→refrigerator, street→bench, cars, etc.) don't clutter.
+                if name not in config.OBJECT_ALLOWLIST:
+                    continue
+                kind = "object"
             out.append({"xyxy": (x1, y1, x2, y2), "name": name, "conf": conf, "kind": kind})
         return out
 
@@ -456,127 +477,183 @@ class YoloDetector:
 
 
 class FaceRecognizer:
-    """DeepFace/ArcFace face recognizer — returns recognized faces with boxes."""
+    """DeepFace/ArcFace face recognizer.
+
+    Only looks for faces INSIDE confident YOLO person boxes: the person region is
+    cropped and upscaled before running the face detector, which (a) lets ArcFace
+    work on far/small faces and (b) eliminates the false 'unknown person' events
+    the old whole-frame Haar detector produced on street/night texture. An
+    UnknownFace event is only raised after the unknown persists across a couple of
+    recognition passes.
+    """
 
     DEEPFACE_MODEL = "ArcFace"
-    DEEPFACE_DETECTOR = "opencv"
 
     def __init__(self, household_id: str, faces_dir: Path):
         self._household_id = household_id
         self._faces_dir = faces_dir / household_id
         self._faces_dir.mkdir(parents=True, exist_ok=True)
         self._frame_count = 0
-        self._run_every = 5  # run recognition every Nth frame
-        # Cache of last recognized faces so we can keep drawing boxes between runs.
+        self._run_every = 5  # run recognition every Nth frame (only while a person is present)
         self._cached_faces: list[dict] = []
-        logger.info("FaceRecognizer (ArcFace) ready for household %s (faces: %s)",
-                    household_id, self._faces_dir)
+        self._unknown_streak = 0
+        self._backend = config.FACE_DETECTOR_BACKEND
+        logger.info("FaceRecognizer (ArcFace / %s) ready for household %s (faces: %s)",
+                    self._backend, household_id, self._faces_dir)
 
     @property
     def faces(self) -> list[dict]:
         """Last known faces: list of {box:(x1,y1,x2,y2), name, known:bool}."""
         return self._cached_faces
 
-    def push_frame(self, bgr_frame: np.ndarray) -> dict | None:
-        """Run recognition periodically; updates self.faces. Returns an event."""
+    def push_frame(self, bgr_frame: np.ndarray, persons: list[dict]) -> dict | None:
+        """Run recognition periodically inside the given person boxes."""
+        # No confident person → nothing to recognize. Clearing the cache/streak
+        # here is what stops the background false positives.
+        if not persons:
+            self._cached_faces = []
+            self._unknown_streak = 0
+            return None
         self._frame_count += 1
         if self._frame_count % self._run_every != 0:
             return None
-        return self._recognize(bgr_frame)
+        return self._recognize(bgr_frame, persons)
 
     def _has_known(self) -> bool:
         return any(self._faces_dir.rglob("*.jpg")) or any(self._faces_dir.rglob("*.png"))
 
-    def _recognize(self, bgr_frame: np.ndarray) -> dict | None:
-        try:
-            from deepface import DeepFace
+    def _crop_person(self, frame: np.ndarray, person: dict):
+        """Crop the person region (padded) and upscale small crops. Returns
+        (crop, ox, oy, scale) or None."""
+        H, W = frame.shape[:2]
+        x1, y1, x2, y2 = (int(v) for v in person["xyxy"])
+        pad_x = int(0.08 * (x2 - x1)); pad_y = int(0.08 * (y2 - y1))
+        x1 = max(0, x1 - pad_x); y1 = max(0, y1 - pad_y)
+        x2 = min(W, x2 + pad_x); y2 = min(H, y2 + pad_y)
+        crop = frame[y1:y2, x1:x2]
+        if crop.size == 0:
+            return None
+        ch, cw = crop.shape[:2]
+        scale = 1.0
+        if 0 < ch < config.FACE_CROP_UPSCALE_TO:
+            scale = config.FACE_CROP_UPSCALE_TO / ch
+            crop = cv2.resize(crop, (max(1, int(cw * scale)), int(ch * scale)),
+                              interpolation=cv2.INTER_CUBIC)
+        return crop, x1, y1, scale
 
-            faces: list[dict] = []
-            event: dict | None = None
-            has_known = self._has_known()
-
-            if has_known:
+    def _faces_in_crop(self, crop: np.ndarray, has_known: bool) -> list[dict]:
+        """Detect (and, if enrolled, recognize) faces within one person crop.
+        Boxes are in crop-pixel coordinates."""
+        from deepface import DeepFace
+        found: list[dict] = []
+        if has_known:
+            try:
                 dfs = DeepFace.find(
-                    img_path=bgr_frame,
-                    db_path=str(self._faces_dir),
-                    model_name=self.DEEPFACE_MODEL,
-                    detector_backend=self.DEEPFACE_DETECTOR,
-                    enforce_detection=False,
-                    silent=True,
+                    img_path=crop, db_path=str(self._faces_dir),
+                    model_name=self.DEEPFACE_MODEL, detector_backend=self._backend,
+                    enforce_detection=False, silent=True,
                 )
-                matched_regions: list[tuple] = []
-                for df in dfs:
-                    if df.empty:
-                        continue
-                    row = df.iloc[0]
-                    sx = int(row.get("source_x", 0)); sy = int(row.get("source_y", 0))
-                    sw = int(row.get("source_w", 0)); sh = int(row.get("source_h", 0))
-                    box = (sx, sy, sx + sw, sy + sh)
-                    distance = float(row.get("distance", 1.0))
-                    name = Path(row.get("identity", "")).parent.name or "?"
-                    known = distance <= config.FACE_DISTANCE_THRESHOLD
-                    faces.append({"box": box, "name": name if known else "Desconocido", "known": known})
-                    matched_regions.append(box)
-                    if known:
-                        event = {
+            except Exception:
+                dfs = []
+            for df in dfs:
+                if df is None or getattr(df, "empty", True):
+                    continue
+                row = df.iloc[0]
+                sx = int(row.get("source_x", 0)); sy = int(row.get("source_y", 0))
+                sw = int(row.get("source_w", 0)); sh = int(row.get("source_h", 0))
+                if sw <= 0 or sh <= 0:
+                    continue
+                distance = float(row.get("distance", 1.0))
+                name = Path(str(row.get("identity", ""))).parent.name or "?"
+                known = distance <= config.FACE_DISTANCE_THRESHOLD
+                found.append({"box": (sx, sy, sx + sw, sy + sh),
+                              "name": name if known else "Desconocido",
+                              "known": known, "distance": distance})
+        # Detect any (unmatched → unknown) faces.
+        try:
+            extracted = DeepFace.extract_faces(
+                img_path=crop, detector_backend=self._backend, enforce_detection=False)
+        except Exception:
+            extracted = []
+        for fa in extracted:
+            if fa.get("confidence", 1.0) < config.FACE_MIN_DETECT_CONFIDENCE:
+                continue
+            area = fa.get("facial_area", {})
+            box = (int(area.get("x", 0)), int(area.get("y", 0)),
+                   int(area.get("x", 0) + area.get("w", 0)),
+                   int(area.get("y", 0) + area.get("h", 0)))
+            if box[2] - box[0] <= 0 or box[3] - box[1] <= 0:
+                continue
+            if any(_iou(box, f["box"]) > 0.3 for f in found):
+                continue  # already covered
+            found.append({"box": box, "name": "Desconocido", "known": False, "distance": 1.0})
+        return found
+
+    def _recognize(self, bgr_frame: np.ndarray, persons: list[dict]) -> dict | None:
+        faces: list[dict] = []
+        has_known = self._has_known()
+        recognized: dict | None = None
+        best_distance = 1.0
+        unknown_present = False
+
+        for person in persons:
+            cropped = self._crop_person(bgr_frame, person)
+            if cropped is None:
+                continue
+            crop, ox, oy, scale = cropped
+            try:
+                for f in self._faces_in_crop(crop, has_known):
+                    bx1, by1, bx2, by2 = f["box"]
+                    fb = (int(ox + bx1 / scale), int(oy + by1 / scale),
+                          int(ox + bx2 / scale), int(oy + by2 / scale))
+                    faces.append({"box": fb, "name": f["name"], "known": f["known"]})
+                    if f["known"] and f["distance"] < best_distance:
+                        best_distance = f["distance"]
+                        recognized = {
                             "event_type": "FaceRecognized",
-                            "confidence_score": round(1.0 - distance, 3),
+                            "confidence_score": round(1.0 - f["distance"], 3),
                             "risk_level": "None",
                             "is_nighttime": _is_nighttime(),
-                            "person_name": name,
+                            "person_name": f["name"],
                             "source": "face",
                         }
-                    elif event is None:
-                        event = {
-                            "event_type": "LowConfidenceFace",
-                            "confidence_score": round(max(0.0, 1.0 - distance), 3),
-                            "risk_level": "Low",
-                            "is_nighttime": _is_nighttime(),
-                            "person_name": name,
-                            "source": "face",
-                        }
+                    elif not f["known"]:
+                        unknown_present = True
+            except Exception as exc:
+                logger.debug("FaceRecognizer crop error: %s", exc)
 
-            # Add boxes for any face present that wasn't matched above (unknowns).
-            extracted = DeepFace.extract_faces(
-                img_path=bgr_frame,
-                detector_backend=self.DEEPFACE_DETECTOR,
-                enforce_detection=False,
-            )
-            for fa in extracted:
-                area = fa.get("facial_area", {})
-                if fa.get("confidence", 1.0) < 0.5:
-                    continue
-                box = (int(area.get("x", 0)), int(area.get("y", 0)),
-                       int(area.get("x", 0) + area.get("w", 0)),
-                       int(area.get("y", 0) + area.get("h", 0)))
-                if box[2] - box[0] <= 0 or box[3] - box[1] <= 0:
-                    continue
-                if any(_iou(box, b["box"]) > 0.3 for b in faces):
-                    continue  # already covered by a matched face
-                faces.append({"box": box, "name": "Desconocido", "known": False})
-                if event is None:
-                    event = {
-                        "event_type": "UnknownFace",
-                        "confidence_score": 0.80,
-                        "risk_level": "Medium",
-                        "is_nighttime": _is_nighttime(),
-                        "person_name": None,
-                        "source": "face",
-                    }
+        self._cached_faces = faces
 
-            self._cached_faces = faces
-            return event
+        # A recognized (authorized) face wins and resets the unknown streak.
+        if recognized is not None:
+            self._unknown_streak = 0
+            return recognized
 
-        except Exception as exc:
-            logger.debug("FaceRecognizer error: %s", exc)
-            return None
+        # Unknown face must persist to fire (kills single-frame flukes).
+        if unknown_present:
+            self._unknown_streak += 1
+            if self._unknown_streak >= config.UNKNOWN_FACE_MIN_STREAK:
+                return {
+                    "event_type": "UnknownFace",
+                    "confidence_score": 0.80,
+                    "risk_level": "Medium",
+                    "is_nighttime": _is_nighttime(),
+                    "person_name": None,
+                    "source": "face",
+                }
+        else:
+            self._unknown_streak = 0
+        return None
 
 
 class BehaviorAnalyzer:
-    """Rule-based fusion of YOLO + face signals over time → suspicious behavior."""
+    """Rule-based fusion of YOLO + face signals over time → suspicious behavior.
 
-    LOITER_SECONDS = 20.0
-    PERSON_GAP_RESET = 5.0   # seconds with no person → reset loiter timer
+    Receives only CONFIDENT persons (see _confident_persons), so the loitering /
+    posture rules no longer fire on distant noise blobs.
+    """
+
+    PERSON_GAP_RESET = 6.0   # seconds with no person → reset loiter timer
 
     def __init__(self):
         self._person_since: float | None = None
@@ -594,16 +671,20 @@ class BehaviorAnalyzer:
             if self._person_since is None:
                 self._person_since = now
             dwell = now - self._person_since
-            if dwell >= self.LOITER_SECONDS:
+            if dwell >= config.LOITER_SECONDS:
                 alerts.append((f"Merodeo {int(dwell)}s", "Medium"))
         elif now - self._last_person_seen > self.PERSON_GAP_RESET:
             self._person_since = None
 
-        # ── Crouching / unusual low posture (wide-ish person bbox) ────────────
+        # ── Group: several people at once (possible forced entry / crowd) ──────
+        if len(persons) >= 3:
+            alerts.append((f"Grupo de {len(persons)} personas", "Medium"))
+
+        # ── Crouching / lying (clearly wider-than-tall person bbox) ───────────
         for p in persons:
             x1, y1, x2, y2 = p["xyxy"]
             w, h = x2 - x1, y2 - y1
-            if w > 0 and h > 0 and (h / w) < 1.15:
+            if w > 0 and h > 0 and (h / w) < 0.9:
                 alerts.append(("Postura agachada", "Medium"))
                 break
 
@@ -691,14 +772,17 @@ class EventDetector:
         persons = [b for b in boxes if b["kind"] == "person"]
         weapons = [b for b in boxes if b["kind"] == "weapon"]
         objects = [b for b in boxes if b["kind"] == "object"]
+        # Confident, close-enough persons drive ALL event logic (loitering,
+        # activity, face recognition). Low-conf / far blobs are drawn but ignored.
+        event_persons = _confident_persons(persons, frame.shape)
         if self._yolo:
             ev = self._yolo.weapon_event(boxes)
             if ev:
                 candidates.append(ev)
 
-        # ── Face recognition (updates self._face.faces) ───────────────────────
+        # ── Face recognition (only inside confident person boxes) ─────────────
         if self._face:
-            ev = self._face.push_frame(frame)
+            ev = self._face.push_frame(frame, event_persons)
             if ev:
                 candidates.append(ev)
         faces = self._face.faces if self._face else []
@@ -710,7 +794,7 @@ class EventDetector:
 
         # ── Activity model ────────────────────────────────────────────────────
         if self._activity:
-            ev = self._activity.push_frame(frame, persons_present=len(persons) > 0)
+            ev = self._activity.push_frame(frame, persons_present=len(event_persons) > 0)
             if ev:
                 candidates.append(ev)
         if self._activity:
@@ -724,11 +808,11 @@ class EventDetector:
         activity_status["suspicious"] = bool(
             activity_status.get("suspicious")
             and activity_status.get("confidence", 0.0) >= 0.50
-            and len(persons) > 0
+            and len(event_persons) > 0
         )
 
         # ── Behavior fusion ───────────────────────────────────────────────────
-        alerts, armed = self._behavior.analyze(persons, weapons, faces, frame.shape)
+        alerts, armed = self._behavior.analyze(event_persons, weapons, faces, frame.shape)
         # Loitering → a real (Tailgating) event so it logs + notifies.
         if any(a[0].startswith("Merodeo") for a in alerts):
             candidates.append({
@@ -750,7 +834,7 @@ class EventDetector:
         _fs.set_status(self.camera_id, {
             "state": "ok",
             "activity": activity_status,
-            "persons": len(persons),
+            "persons": len(event_persons),
             "objects": sorted({o["name"] for o in objects} | {w["name"] for w in weapons}),
             "faces": [{"name": f["name"], "known": f["known"]} for f in faces],
             "alerts": [a[0] for a in alerts],

@@ -48,6 +48,37 @@ ACTIVITY_EVENT_MIN_STREAK: int = int(os.getenv("ACTIVITY_EVENT_MIN_STREAK", "2")
 YOLO_CONFIDENCE_THRESHOLD: float = float(os.getenv("YOLO_CONFIDENCE_THRESHOLD", "0.50"))
 FACE_DISTANCE_THRESHOLD: float = float(os.getenv("FACE_DISTANCE_THRESHOLD", "0.45"))
 
+# ── Person gating for EVENTS (kills false person / loiter / unknown-face spam) ──
+# A YOLO 'person' box is still DRAWN at a low conf, but it only counts as a real
+# person for event logic (loitering, activity, face recognition) when it clears
+# BOTH this confidence and this minimum height (fraction of the frame height).
+# Distant noise blobs across a street stay below these and are ignored.
+PERSON_EVENT_CONFIDENCE: float = float(os.getenv("PERSON_EVENT_CONFIDENCE", "0.55"))
+PERSON_MIN_HEIGHT_FRAC: float = float(os.getenv("PERSON_MIN_HEIGHT_FRAC", "0.12"))
+
+# ── Face recognition (crop + upscale the person region) ───────────────────────
+# Faces are ONLY looked for inside a confident person box (the person crop is
+# upscaled so far/small faces are big enough for ArcFace). 'yunet' is a fast,
+# accurate CPU face detector (far better than Haar 'opencv' on textured/night
+# scenes); set FACE_DETECTOR_BACKEND=opencv to fall back. An UnknownFace event
+# needs the unknown to persist across this many recognition passes.
+FACE_DETECTOR_BACKEND: str = os.getenv("FACE_DETECTOR_BACKEND", "yunet")
+FACE_CROP_UPSCALE_TO: int = int(os.getenv("FACE_CROP_UPSCALE_TO", "320"))
+FACE_MIN_DETECT_CONFIDENCE: float = float(os.getenv("FACE_MIN_DETECT_CONFIDENCE", "0.70"))
+UNKNOWN_FACE_MIN_STREAK: int = int(os.getenv("UNKNOWN_FACE_MIN_STREAK", "2"))
+
+# ── Loitering / prowling ("Merodeador") ───────────────────────────────────────
+LOITER_SECONDS: float = float(os.getenv("LOITER_SECONDS", "25"))
+
+# Objects kept in the annotated view + status (COCO class names). Everything else
+# (furniture, appliances, vehicles, etc.) is dropped so YOLO misclassifications
+# like door→refrigerator or bench don't clutter the view. persons/weapons/faces
+# are always kept regardless of this list.
+OBJECT_ALLOWLIST: set[str] = {
+    s.strip() for s in os.getenv("OBJECT_ALLOWLIST", "backpack,handbag,suitcase").split(",")
+    if s.strip()
+}
+
 # Activity classes to ignore entirely (never suspicious, never the displayed
 # prediction). This app is domestic surveillance, so retail-oriented classes the
 # model misfires on (Shoplifting) and traffic events are excluded by default.
