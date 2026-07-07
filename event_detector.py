@@ -506,18 +506,17 @@ class FaceRecognizer:
         """Last known faces: list of {box:(x1,y1,x2,y2), name, known:bool}."""
         return self._cached_faces
 
-    def push_frame(self, bgr_frame: np.ndarray, persons: list[dict]) -> dict | None:
-        """Run recognition periodically inside the given person boxes."""
-        # No confident person → nothing to recognize. Clearing the cache/streak
-        # here is what stops the background false positives.
+    def push_frame(self, bgr_frame: np.ndarray, persons: list[dict]) -> None:
+        """Refresh recognized faces (throttled) inside the given person boxes. The
+        EventDetector reads .faces and drives known/unknown events via the person
+        tracker — this method no longer decides events itself."""
         if not persons:
             self._cached_faces = []
-            self._unknown_streak = 0
-            return None
+            return
         self._frame_count += 1
         if self._frame_count % self._run_every != 0:
-            return None
-        return self._recognize(bgr_frame, persons)
+            return
+        self._recognize(bgr_frame, persons)
 
     def _has_known(self) -> bool:
         return any(self._faces_dir.rglob("*.jpg")) or any(self._faces_dir.rglob("*.png"))
@@ -589,13 +588,10 @@ class FaceRecognizer:
             found.append({"box": box, "name": "Desconocido", "known": False, "distance": 1.0})
         return found
 
-    def _recognize(self, bgr_frame: np.ndarray, persons: list[dict]) -> dict | None:
+    def _recognize(self, bgr_frame: np.ndarray, persons: list[dict]) -> None:
+        """Detect + recognize faces inside each person crop; update self.faces."""
         faces: list[dict] = []
         has_known = self._has_known()
-        recognized: dict | None = None
-        best_distance = 1.0
-        unknown_present = False
-
         for person in persons:
             cropped = self._crop_person(bgr_frame, person)
             if cropped is None:
@@ -606,44 +602,11 @@ class FaceRecognizer:
                     bx1, by1, bx2, by2 = f["box"]
                     fb = (int(ox + bx1 / scale), int(oy + by1 / scale),
                           int(ox + bx2 / scale), int(oy + by2 / scale))
-                    faces.append({"box": fb, "name": f["name"], "known": f["known"]})
-                    if f["known"] and f["distance"] < best_distance:
-                        best_distance = f["distance"]
-                        recognized = {
-                            "event_type": "FaceRecognized",
-                            "confidence_score": round(1.0 - f["distance"], 3),
-                            "risk_level": "None",
-                            "is_nighttime": _is_nighttime(),
-                            "person_name": f["name"],
-                            "source": "face",
-                        }
-                    elif not f["known"]:
-                        unknown_present = True
+                    faces.append({"box": fb, "name": f["name"],
+                                  "known": f["known"], "distance": f["distance"]})
             except Exception as exc:
                 logger.debug("FaceRecognizer crop error: %s", exc)
-
         self._cached_faces = faces
-
-        # A recognized (authorized) face wins and resets the unknown streak.
-        if recognized is not None:
-            self._unknown_streak = 0
-            return recognized
-
-        # Unknown face must persist to fire (kills single-frame flukes).
-        if unknown_present:
-            self._unknown_streak += 1
-            if self._unknown_streak >= config.UNKNOWN_FACE_MIN_STREAK:
-                return {
-                    "event_type": "UnknownFace",
-                    "confidence_score": 0.80,
-                    "risk_level": "Medium",
-                    "is_nighttime": _is_nighttime(),
-                    "person_name": None,
-                    "source": "face",
-                }
-        else:
-            self._unknown_streak = 0
-        return None
 
 
 class BehaviorAnalyzer:
@@ -710,6 +673,72 @@ class BehaviorAnalyzer:
         return alerts, sorted(set(armed))
 
 
+class PersonTracker:
+    """Tracks confident persons across frames (greedy IoU matching) so that:
+      - a NEW person gets a grace window to be recognized before an UnknownFace
+        alert fires (config.UNKNOWN_ALERT_GRACE_SECONDS) — time to walk up to the cam,
+      - once recognized, a track KEEPS that identity even if the face is no longer
+        visible,
+      - each track alerts at most once (no alert/WhatsApp spam),
+      - a person who leaves for > TTL and returns counts as a new person.
+    """
+
+    def __init__(self):
+        self._tracks: dict[int, dict] = {}
+        self._next_id = 1
+
+    def update(self, persons: list[dict], now: float) -> dict[int, int]:
+        """Match person boxes to tracks. Returns {person_index: track_id}."""
+        for tid in [t for t, tr in self._tracks.items()
+                    if now - tr["last_seen"] > config.PERSON_TRACK_TTL_SECONDS]:
+            del self._tracks[tid]
+        assign: dict[int, int] = {}
+        used: set[int] = set()
+        for i, p in enumerate(persons):
+            best_iou, best_tid = 0.0, None
+            for tid, tr in self._tracks.items():
+                if tid in used:
+                    continue
+                iou = _iou(p["xyxy"], tr["bbox"])
+                if iou > best_iou:
+                    best_iou, best_tid = iou, tid
+            if best_tid is not None and best_iou >= config.PERSON_TRACK_IOU:
+                tr = self._tracks[best_tid]
+                tr["bbox"] = p["xyxy"]; tr["last_seen"] = now
+                assign[i] = best_tid; used.add(best_tid)
+            else:
+                tid = self._next_id; self._next_id += 1
+                self._tracks[tid] = {"bbox": p["xyxy"], "first_seen": now,
+                                     "last_seen": now, "state": "pending",
+                                     "name": None, "alerted": False}
+                assign[i] = tid
+        return assign
+
+    def mark_known(self, tid: int, name: str) -> bool:
+        """Mark a track recognized. Returns True only the first time (→ log once)."""
+        tr = self._tracks.get(tid)
+        if tr is None or tr["state"] == "known":
+            return False
+        tr["state"] = "known"; tr["name"] = name; tr["alerted"] = True
+        return True
+
+    def pending_unknown(self, now: float) -> list[int]:
+        """Track ids unrecognized past the grace window → fire UnknownFace once."""
+        out = []
+        for tid, tr in self._tracks.items():
+            if (tr["state"] == "pending" and not tr["alerted"]
+                    and now - tr["first_seen"] >= config.UNKNOWN_ALERT_GRACE_SECONDS):
+                tr["alerted"] = True; tr["state"] = "unknown"
+                out.append(tid)
+        return out
+
+    def get(self, tid) -> dict | None:
+        return self._tracks.get(tid)
+
+    def any_unknown(self) -> bool:
+        return any(tr["state"] == "unknown" for tr in self._tracks.values())
+
+
 class EventDetector:
     """
     Orchestrates the pipeline for one camera stream.
@@ -727,11 +756,14 @@ class EventDetector:
         logger.info("Initializing pipeline for camera '%s' (%s)", camera_name, camera_id)
 
         self._activity: ActivityDetector | None = None
-        try:
-            self._activity = ActivityDetector()
-        except Exception as e:
-            logger.error("ActivityDetector failed to load: %s", e)
-            logger.warning("Activity detection disabled for camera '%s'", camera_name)
+        if config.ACTIVITY_ENABLED:
+            try:
+                self._activity = ActivityDetector()
+            except Exception as e:
+                logger.error("ActivityDetector failed to load: %s", e)
+                logger.warning("Activity detection disabled for camera '%s'", camera_name)
+        else:
+            logger.info("Activity model disabled (ACTIVITY_ENABLED=false)")
 
         self._yolo: YoloDetector | None = None
         try:
@@ -748,6 +780,7 @@ class EventDetector:
             logger.warning("Face recognition disabled for camera '%s'", camera_name)
 
         self._behavior = BehaviorAnalyzer()
+        self._tracker = PersonTracker()
         self._last_event_time: dict[str, float] = {}
         # Latest detections, kept so an event snapshot can be drawn with the boxes
         # that triggered it (persons/weapons/objects/faces).
@@ -780,60 +813,76 @@ class EventDetector:
             if ev:
                 candidates.append(ev)
 
-        # ── Face recognition (only inside confident person boxes) ─────────────
+        # ── Person tracking (grace window + persistent identity + no spam) ────
+        now = time.monotonic()
+        assign = self._tracker.update(event_persons, now)
+
+        # ── Face recognition (throttled; only inside confident person boxes) ──
         if self._face:
-            ev = self._face.push_frame(frame, event_persons)
-            if ev:
-                candidates.append(ev)
+            self._face.push_frame(frame, event_persons)
         faces = self._face.faces if self._face else []
+
+        # A known face inside a person box makes that track that identity (once →
+        # FaceRecognized). The identity PERSISTS on the track even if the face is
+        # later not visible (person stays "known" while on screen).
+        for f in faces:
+            if not f.get("known"):
+                continue
+            fcx = (f["box"][0] + f["box"][2]) / 2
+            fcy = (f["box"][1] + f["box"][3]) / 2
+            for i, p in enumerate(event_persons):
+                x1, y1, x2, y2 = p["xyxy"]
+                if x1 <= fcx <= x2 and y1 <= fcy <= y2:
+                    tid = assign.get(i)
+                    if tid is not None and self._tracker.mark_known(tid, f["name"]):
+                        candidates.append({
+                            "event_type": "FaceRecognized",
+                            "confidence_score": round(1.0 - f.get("distance", 0.0), 3),
+                            "risk_level": "None", "is_nighttime": _is_nighttime(),
+                            "person_name": f["name"], "source": "face"})
+                    break
+
+        # Unknown-person alert: a NEW person still unrecognized after the grace
+        # window fires exactly ONE UnknownFace (no spam; re-fires only for a
+        # genuinely new person).
+        for _tid in self._tracker.pending_unknown(now):
+            candidates.append({
+                "event_type": "UnknownFace", "confidence_score": 0.85,
+                "risk_level": "Medium", "is_nighttime": _is_nighttime(),
+                "person_name": None, "source": "track-unknown"})
+
+        # Per-person label from the track (drawn even when no face is visible).
+        person_labels: dict[int, tuple] = {}
+        for i, p in enumerate(event_persons):
+            tr = self._tracker.get(assign.get(i))
+            if tr and tr.get("name"):
+                person_labels[i] = (tr["name"], _COLOR_FACE_KNOWN)
+            elif tr and tr["state"] == "unknown":
+                person_labels[i] = ("Desconocido", _COLOR_FACE_UNKNOWN)
+            else:
+                person_labels[i] = ("Identificando...", _COLOR_OBJECT)
 
         # Keep the current detections for event snapshots (drawn with boxes).
         self.last_draw = {
             "persons": persons, "weapons": weapons, "objects": objects, "faces": faces,
         }
 
-        # ── Activity model ────────────────────────────────────────────────────
-        if self._activity:
-            ev = self._activity.push_frame(frame, persons_present=len(event_persons) > 0)
-            if ev:
-                candidates.append(ev)
-        if self._activity:
-            activity_status = dict(self._activity.last_status)
-        else:
-            activity_status = {"label": "n/a", "confidence": 0.0, "suspicious": False}
-        # Gate the VISUAL suspicious flag so the red banner doesn't fire on an
-        # idle scene: require decent confidence AND a person in frame (suspicious
-        # *human* activity needs a human; the model is noisy on empty scenes).
-        # The formal alarm/event still uses the stricter threshold in ActivityDetector.
-        activity_status["suspicious"] = bool(
-            activity_status.get("suspicious")
-            and activity_status.get("confidence", 0.0) >= 0.50
-            and len(event_persons) > 0
-        )
-
         # ── Behavior fusion ───────────────────────────────────────────────────
         alerts, armed = self._behavior.analyze(event_persons, weapons, faces, frame.shape)
-        # Loitering → a real (Tailgating) event so it logs + notifies.
         if any(a[0].startswith("Merodeo") for a in alerts):
             candidates.append({
-                "event_type": "Tailgating",
-                "confidence_score": 0.75,
-                "risk_level": "Medium",
-                "is_nighttime": _is_nighttime(),
-                "person_name": None,
-                "source": "behavior-loiter",
-            })
+                "event_type": "Tailgating", "confidence_score": 0.75,
+                "risk_level": "Medium", "is_nighttime": _is_nighttime(),
+                "person_name": None, "source": "behavior-loiter"})
 
         overall_suspicious = bool(
-            activity_status.get("suspicious")
-            or weapons or armed
-            or any(a[1] in ("High", "Critical") for a in alerts)
-        )
+            weapons or armed
+            or self._tracker.any_unknown()
+            or any(a[1] in ("High", "Critical") for a in alerts))
 
         # ── Publish status for the app's live banner ──────────────────────────
         _fs.set_status(self.camera_id, {
             "state": "ok",
-            "activity": activity_status,
             "persons": len(event_persons),
             "objects": sorted({o["name"] for o in objects} | {w["name"] for w in weapons}),
             "faces": [{"name": f["name"], "known": f["known"]} for f in faces],
@@ -844,8 +893,9 @@ class EventDetector:
         # ── Draw the annotated frame only when someone is watching ────────────
         if watched:
             annotated = frame.copy()
-            for p in persons:
-                _draw_box(annotated, p["xyxy"], _COLOR_PERSON, f"persona {p['conf']*100:.0f}%")
+            for i, p in enumerate(event_persons):
+                text, col = person_labels.get(i, ("persona", _COLOR_PERSON))
+                _draw_box(annotated, p["xyxy"], col, text)
             for o in objects:
                 _draw_box(annotated, o["xyxy"], _COLOR_OBJECT, f"{o['name']} {o['conf']*100:.0f}%")
             for w in weapons:  # weapons last so their red box sits on top
@@ -853,17 +903,13 @@ class EventDetector:
             for f in faces:
                 col = _COLOR_FACE_KNOWN if f["known"] else _COLOR_FACE_UNKNOWN
                 _draw_box(annotated, f["box"], col, f["name"], thick=2)
-            _draw_activity_banner(annotated, activity_status)
             _draw_alerts(annotated, alerts)
             try:
-                # Downscale + compress so the phone can fetch frames reliably over
-                # WiFi (a full 1080p JPEG is ~95 KB and stutters/drops; ~800px @ q55
-                # is ~25 KB). The phone screen doesn't need more than this.
                 h, w = annotated.shape[:2]
                 if w > 800:
                     annotated = cv2.resize(annotated, (800, int(h * 800 / w)),
                                            interpolation=cv2.INTER_AREA)
-                _, buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 55])
+                _, buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 60])
                 _fs.store_frame(self.camera_id, buf.tobytes())
             except Exception:
                 pass

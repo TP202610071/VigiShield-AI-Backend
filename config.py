@@ -63,9 +63,27 @@ PERSON_MIN_HEIGHT_FRAC: float = float(os.getenv("PERSON_MIN_HEIGHT_FRAC", "0.12"
 # scenes); set FACE_DETECTOR_BACKEND=opencv to fall back. An UnknownFace event
 # needs the unknown to persist across this many recognition passes.
 FACE_DETECTOR_BACKEND: str = os.getenv("FACE_DETECTOR_BACKEND", "yunet")
-FACE_CROP_UPSCALE_TO: int = int(os.getenv("FACE_CROP_UPSCALE_TO", "320"))
+# Upscale the person crop to at least this height (px) before face detection, so
+# far/small faces are big enough for ArcFace to recognize without eye contact.
+FACE_CROP_UPSCALE_TO: int = int(os.getenv("FACE_CROP_UPSCALE_TO", "480"))
 FACE_MIN_DETECT_CONFIDENCE: float = float(os.getenv("FACE_MIN_DETECT_CONFIDENCE", "0.70"))
 UNKNOWN_FACE_MIN_STREAK: int = int(os.getenv("UNKNOWN_FACE_MIN_STREAK", "2"))
+
+# ── Person tracking + unknown-person grace ────────────────────────────────────
+# Each person is tracked across frames (IoU). A NEW person gets this grace window
+# to have their face recognized before an UnknownFace alert fires (so you can walk
+# up to the camera). Once a track is recognized it STAYS that identity even if the
+# face is no longer visible; each track alerts at most once (no WhatsApp/app spam).
+# A track expires after this idle TTL — a person who leaves and returns is "new".
+UNKNOWN_ALERT_GRACE_SECONDS: float = float(os.getenv("UNKNOWN_ALERT_GRACE_SECONDS", "8"))
+PERSON_TRACK_TTL_SECONDS: float = float(os.getenv("PERSON_TRACK_TTL_SECONDS", "4"))
+PERSON_TRACK_IOU: float = float(os.getenv("PERSON_TRACK_IOU", "0.25"))
+
+# ── Activity model ────────────────────────────────────────────────────────────
+# The UCF-Crime activity model is mis-domained (odd labels like "Meet_and_Split")
+# and CPU-heavy. Disabled by default — rule-based behaviors + face/person tracking
+# drive events now. Set ACTIVITY_ENABLED=true to re-enable.
+ACTIVITY_ENABLED: bool = os.getenv("ACTIVITY_ENABLED", "false").lower() in ("1", "true", "yes")
 
 # ── Loitering / prowling ("Merodeador") ───────────────────────────────────────
 LOITER_SECONDS: float = float(os.getenv("LOITER_SECONDS", "25"))
