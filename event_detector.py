@@ -949,8 +949,16 @@ class EventDetector:
         # ── Draw the annotated frame only when someone is watching ────────────
         if watched:
             annotated = frame.copy()
+            # Dibuja TODAS las personas detectadas por YOLO (no solo las "confiables"),
+            # para que la vista de IA muestre las cajas aunque estén lejos / de baja
+            # confianza. Las confiables llevan su etiqueta de identidad (track); el
+            # resto una caja genérica con su % de confianza.
+            _label_by_person = {}
             for i, p in enumerate(event_persons):
-                text, col = person_labels.get(i, ("persona", _COLOR_PERSON))
+                _label_by_person[id(p)] = person_labels.get(i, ("persona", _COLOR_PERSON))
+            for p in persons:
+                text, col = _label_by_person.get(
+                    id(p), (f"persona {p['conf']*100:.0f}%", _COLOR_PERSON))
                 _draw_box(annotated, p["xyxy"], col, text)
             for o in objects:
                 _draw_box(annotated, o["xyxy"], _COLOR_OBJECT, f"{o['name']} {o['conf']*100:.0f}%")
