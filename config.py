@@ -88,6 +88,13 @@ ACTIVITY_ENABLED: bool = os.getenv("ACTIVITY_ENABLED", "false").lower() in ("1",
 # ── Loitering / prowling ("Merodeador") ───────────────────────────────────────
 LOITER_SECONDS: float = float(os.getenv("LOITER_SECONDS", "25"))
 
+# ── CAIEE — Motor de Estimación de Intención (anticipatorio) ──────────────────
+# Algoritmo (no modelo): máquina de estados + scoring con acumulación temporal e
+# histéresis. Fusiona las salidas de YOLO/rostros/tracker + las zonas dibujadas
+# por el usuario para estimar RIESGO por persona y avisar antes de la intrusión.
+# Conservador por diseño (prioriza certeza / mínimos falsos positivos).
+CAIEE_ENABLED: bool = os.getenv("CAIEE_ENABLED", "true").lower() in ("1", "true", "yes")
+
 # Objects kept in the annotated view + status (COCO class names). Everything else
 # (furniture, appliances, vehicles, etc.) is dropped so YOLO misclassifications
 # like door→refrigerator or bench don't clutter the view. persons/weapons/faces
