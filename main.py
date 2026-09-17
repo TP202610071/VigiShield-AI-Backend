@@ -101,6 +101,7 @@ class CameraWorker(threading.Thread):
             household_id=household_id,
             camera_id=camera_id,
             camera_name=camera_name,
+            zones_raw=cam.get("zones"),
         )
 
         # Household alert toggles — refreshed lazily so disabling an alert in the
