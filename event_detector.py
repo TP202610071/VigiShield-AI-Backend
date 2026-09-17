@@ -814,6 +814,13 @@ class EventDetector:
             "ON" if self._face else "OFF",
         )
 
+    def set_zones(self, zones_raw) -> None:
+        """Recarga las zonas en caliente (sin reiniciar el pipeline/stream).
+        Reasignar la referencia es atómico bajo el GIL, así que es seguro llamarlo
+        desde otro hilo mientras process_frame corre."""
+        self._zones = parse_zones(zones_raw)
+        logger.info("[%s] Zonas recargadas en caliente (%d)", self.camera_name, len(self._zones))
+
     def process_frame(self, frame: np.ndarray) -> list[dict]:
         """Run all models on one frame; returns list of events to ingest."""
         import frame_server as _fs
