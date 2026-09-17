@@ -129,10 +129,15 @@ def record_event_clip(rtsp_url: str, seconds: int) -> str | None:
         _ensure_snapshot_dir()
         name = f"{datetime.now():%Y%m%d}_{uuid.uuid4().hex[:12]}.mp4"
         path = os.path.join(config.EVENT_SNAPSHOT_DIR, name)
+        # Re-codificamos (no '-c copy'): con esta cámara el copy producía clips
+        # rotos (<1 s, sin duración válida) porque el stream tiene GOP largo y el
+        # copy corta en el keyframe. libx264 veryfast decodifica todos los cuadros
+        # y garantiza un MP4 reproducible de ~[seconds] s.
         cmd = [
             "ffmpeg", "-y", "-rtsp_transport", "tcp", "-i", rtsp_url,
-            "-t", str(seconds), "-c", "copy", "-an",
-            "-movflags", "+faststart", path,
+            "-t", str(seconds),
+            "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
+            "-an", "-movflags", "+faststart", path,
         ]
         subprocess.run(cmd, timeout=seconds + 25,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
