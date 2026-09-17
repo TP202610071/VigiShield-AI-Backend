@@ -71,9 +71,21 @@ class CameraWorker(threading.Thread):
         super().__init__(name=f"cam-{camera['id'][:8]}", daemon=True)
         self.camera = camera
         self._stop_event = threading.Event()
+        self.detector = None            # se asigna al crear el pipeline en run()
+        self._zones_raw = camera.get("zones")
 
     def stop(self):
         self._stop_event.set()
+
+    def update_zones(self, zones_raw) -> None:
+        """Recarga en caliente las zonas de esta cámara (llamado desde el manager).
+        No reinicia el worker ni el stream — solo reemplaza el polígono en memoria."""
+        if zones_raw == self._zones_raw:
+            return  # sin cambios
+        self._zones_raw = zones_raw
+        d = self.detector
+        if d is not None:
+            d.set_zones(zones_raw)
 
     def run(self):
         cam = self.camera
@@ -101,8 +113,9 @@ class CameraWorker(threading.Thread):
             household_id=household_id,
             camera_id=camera_id,
             camera_name=camera_name,
-            zones_raw=cam.get("zones"),
+            zones_raw=self._zones_raw,
         )
+        self.detector = detector  # expuesto para recarga en caliente de zonas
 
         # Household alert toggles — refreshed lazily so disabling an alert in the
         # app suppresses those event types within ALERT_CONFIG_REFRESH_SECONDS.
@@ -197,7 +210,7 @@ class CameraManager:
                 except Exception as e:
                     logger.warning("Face sync failed for household %s: %s", hid[:8], e)
 
-        # Start workers for new cameras
+        # Start workers for new cameras; hot-reload zones on existing ones.
         for cam in cameras:
             cid = str(cam["id"])
             if cid not in self._workers:
@@ -205,6 +218,10 @@ class CameraManager:
                 worker.start()
                 self._workers[cid] = worker
                 logger.info("Camera '%s' (%s) → worker started", cam.get("name"), cid[:8])
+            else:
+                # Recarga de zonas sin reiniciar el stream (aplica lo que el
+                # usuario dibuje en la app en el siguiente refresco).
+                self._workers[cid].update_zones(cam.get("zones"))
 
     def stop_all(self):
         for w in self._workers.values():
