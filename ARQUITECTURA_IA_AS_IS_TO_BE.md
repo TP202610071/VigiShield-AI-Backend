@@ -4,6 +4,22 @@
 > Describe qué existe hoy (**AS-IS**) y hacia dónde puede evolucionar (**TO-BE**), separando
 > con honestidad lo que son **bloques estándar preentrenados** de lo que es **desarrollo propio**.
 
+**Última actualización:** 2026-09-16
+
+## Estado de implementación
+
+| Componente | Estado | Dónde |
+|---|---|---|
+| YOLOv8 + ArcFace + reglas + PersonTracker | ✅ En producción | `event_detector.py` |
+| **Zonas de interés (ROI)** dibujadas por el usuario | ✅ **Implementado** (rama `feature/zones-caiee`) | `zones.py` · backend `CameraConfig.ZonesJson` · app `zone_editor_screen.dart` |
+| **CAIEE** — motor de intención anticipatoria | ✅ **Implementado** (rama `feature/zones-caiee`) | `caiee.py` + `event_detector.py` |
+| Modelo de violencia/asalto (pose/LSTM) | 🔜 Futuro (opcional) | — |
+| Otras piezas (tripwire, trayectoria, Re-ID, DSL…) | 🔜 Futuro | — |
+
+> Nota: Zonas + CAIEE ya están integrados y validados (self-test offline). Falta
+> **aplicar la migración de BD** en producción (columna `ZonesJson`, ya idempotente)
+> y **calibrar umbrales** con grabaciones reales — ver `caiee.py`.
+
 ---
 
 ## 1. Resumen ejecutivo
