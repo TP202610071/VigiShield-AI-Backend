@@ -27,6 +27,8 @@ import cv2
 import numpy as np
 
 import config
+from caiee import Evidence, IntentEngine
+from zones import parse_zones
 
 logger = logging.getLogger(__name__)
 
@@ -738,6 +740,10 @@ class PersonTracker:
     def any_unknown(self) -> bool:
         return any(tr["state"] == "unknown" for tr in self._tracks.values())
 
+    def active_ids(self) -> set[int]:
+        """Ids de tracks vivos (para que el CAIEE olvide los que expiraron)."""
+        return set(self._tracks.keys())
+
 
 class EventDetector:
     """
@@ -748,12 +754,21 @@ class EventDetector:
     alerts in quick succession.
     """
 
-    def __init__(self, household_id: str, camera_id: str, camera_name: str):
+    def __init__(self, household_id: str, camera_id: str, camera_name: str,
+                 zones_raw=None):
         self.household_id = household_id
         self.camera_id = camera_id
         self.camera_name = camera_name
 
         logger.info("Initializing pipeline for camera '%s' (%s)", camera_name, camera_id)
+
+        # User-drawn zones (puerta/reja/calle…) — empty if the user drew nothing.
+        self._zones = parse_zones(zones_raw)
+        # CAIEE — anticipatory intent estimation. Independent of the models; it
+        # consumes their outputs + zones as evidence. Optional via config flag.
+        self._caiee = IntentEngine() if config.CAIEE_ENABLED else None
+        if self._caiee:
+            logger.info("[%s] CAIEE enabled (%d zone(s))", camera_name, len(self._zones))
 
         self._activity: ActivityDetector | None = None
         if config.ACTIVITY_ENABLED:
@@ -875,9 +890,49 @@ class EventDetector:
                 "risk_level": "Medium", "is_nighttime": _is_nighttime(),
                 "person_name": None, "source": "behavior-loiter"})
 
+        # ── CAIEE: estimación de intención anticipatoria (por persona) ────────
+        # Usa las salidas de arriba + las zonas del usuario como EVIDENCIA. No
+        # reemplaza las reglas; agrega una decisión anticipatoria de alto riesgo.
+        intent_state, intent_score = ("calm", 0.0)
+        if self._caiee is not None:
+            H, W = frame.shape[:2]
+            group = len(event_persons) >= 3
+            night = _is_nighttime()
+            for i, p in enumerate(event_persons):
+                tid = assign.get(i)
+                if tid is None:
+                    continue
+                tr = self._tracker.get(tid)
+                state = tr["state"] if tr else "pending"
+                dwell = (now - tr["first_seen"]) if tr else 0.0
+                zone = self._zones.zone_for_bbox(p["xyxy"], W, H)
+                x1, y1, x2, y2 = p["xyxy"]
+                pw, ph = (x2 - x1), (y2 - y1)
+                weapon_near = any(
+                    _center_inside(wb["xyxy"], p["xyxy"]) or _iou(wb["xyxy"], p["xyxy"]) > 0.0
+                    for wb in weapons)
+                ev = Evidence(
+                    is_unknown=(state == "unknown"),
+                    is_known=(state == "known"),
+                    zone_type=(zone.zone_type if zone else None),
+                    in_entry_zone=bool(zone and zone.is_entry),
+                    loitering=(dwell >= config.LOITER_SECONDS),
+                    weapon_near=weapon_near,
+                    group=group,
+                    night=night,
+                    anomalous_posture=(pw > 0 and ph > 0 and (ph / pw) < 0.9),
+                    approaching=False,
+                )
+                intent_ev = self._caiee.update(tid, ev, now)
+                if intent_ev:
+                    candidates.append(intent_ev)
+            self._caiee.forget(self._tracker.active_ids())
+            intent_state, intent_score = self._caiee.max_state()
+
         overall_suspicious = bool(
             weapons or armed
             or self._tracker.any_unknown()
+            or intent_state in ("suspect", "high_risk")
             or any(a[1] in ("High", "Critical") for a in alerts))
 
         # ── Publish status for the app's live banner ──────────────────────────
@@ -888,6 +943,7 @@ class EventDetector:
             "faces": [{"name": f["name"], "known": f["known"]} for f in faces],
             "alerts": [a[0] for a in alerts],
             "suspicious": overall_suspicious,
+            "intent": {"state": intent_state, "score": round(intent_score)},
         })
 
         # ── Draw the annotated frame only when someone is watching ────────────
