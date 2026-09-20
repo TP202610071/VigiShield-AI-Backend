@@ -80,41 +80,81 @@ def get_authorized_faces(household_id: str) -> list[dict]:
 
 def sync_faces(household_id: str, faces_dir) -> None:
     """
-    Download face photos from the backend and save them to the local faces directory.
+    Mirror the household's authorized faces into the local faces directory.
     Directory structure: faces_dir / household_id / person_name / photo.jpg
-    Only downloads files that do not already exist locally.
+
+    IMPORTANT: this is a two-way MIRROR, not just a download:
+      - descarga las fotos nuevas que falten localmente,
+      - ELIMINA localmente las personas/fotos que ya NO están autorizadas en el
+        backend (antes solo descargaba → una cara borrada en la app seguía
+        reconociéndose porque su copia local quedaba huérfana),
+      - si algo cambió, BORRA el caché de embeddings de DeepFace (*.pkl) para que
+        se regenere sin la persona eliminada.
     """
+    import shutil
     import requests as req_module
     from pathlib import Path
 
-    faces = get_authorized_faces(household_id)
-    if not faces:
-        return
-
+    faces = get_authorized_faces(household_id)  # [] si no hay ninguna autorizada
     base_dir = Path(faces_dir) / household_id
+    base_dir.mkdir(parents=True, exist_ok=True)
+
+    changed = False
+    authorized_dirs: set[str] = set()
 
     for face in faces:
         person_name = face.get("personName", "unknown").strip()
         photo_paths = face.get("photoPaths", [])
+        authorized_dirs.add(person_name)
         person_dir = base_dir / person_name
         person_dir.mkdir(parents=True, exist_ok=True)
+        authorized_files = {Path(u).name for u in photo_paths}
 
+        # 1) descargar las que falten
         for url_path in photo_paths:
-            filename = Path(url_path).name
-            local_path = person_dir / filename
+            local_path = person_dir / Path(url_path).name
             if local_path.exists():
                 continue
-
             try:
-                full_url = f"{BACKEND_API_URL}{url_path}"
-                img_resp = req_module.get(full_url, timeout=30)
+                img_resp = req_module.get(f"{BACKEND_API_URL}{url_path}", timeout=30)
                 img_resp.raise_for_status()
                 local_path.write_bytes(img_resp.content)
-                logger.debug("Downloaded face photo: %s → %s", url_path, local_path)
+                changed = True
+                logger.debug("Downloaded face photo: %s", local_path)
             except Exception as e:
                 logger.warning("Failed to download face photo %s: %s", url_path, e)
 
-    logger.info("Face sync complete for household %s (%d profiles)", household_id, len(faces))
+        # 2) borrar fotos locales de esta persona que ya no están autorizadas
+        for local in list(person_dir.glob("*")):
+            if local.is_file() and local.suffix.lower() in (".jpg", ".jpeg", ".png") \
+                    and local.name not in authorized_files:
+                try:
+                    local.unlink(); changed = True
+                    logger.info("Removed stale face photo: %s", local)
+                except OSError:
+                    pass
+
+    # 3) borrar carpetas de personas que ya NO están autorizadas (o todas si faces=[])
+    if base_dir.exists():
+        for person_dir in list(base_dir.iterdir()):
+            if person_dir.is_dir() and person_dir.name not in authorized_dirs:
+                try:
+                    shutil.rmtree(person_dir); changed = True
+                    logger.info("Removed unauthorized face profile: %s", person_dir.name)
+                except OSError:
+                    pass
+
+    # 4) si cambió algo, invalidar el caché de embeddings de DeepFace
+    if changed:
+        for pkl in base_dir.glob("*.pkl"):
+            try:
+                pkl.unlink()
+                logger.info("Invalidated DeepFace cache: %s", pkl.name)
+            except OSError:
+                pass
+
+    logger.info("Face sync complete for household %s (%d perfiles autorizados%s)",
+                household_id, len(faces), ", cambios aplicados" if changed else "")
 
 
 def ingest_event(

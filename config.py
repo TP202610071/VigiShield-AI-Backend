@@ -115,7 +115,7 @@ ACTIVITY_EXCLUDED_LABELS: set[str] = {
 # ── Event de-duplication ──────────────────────────────────────────────────────
 # Don't ingest the SAME event_type for the same camera more than once per this
 # many seconds (prevents 10 alerts in a few seconds for one ongoing situation).
-EVENT_TYPE_COOLDOWN_SECONDS: float = float(os.getenv("EVENT_TYPE_COOLDOWN_SECONDS", "60"))
+EVENT_TYPE_COOLDOWN_SECONDS: float = float(os.getenv("EVENT_TYPE_COOLDOWN_SECONDS", "180"))
 
 # ── MediaMTX ──────────────────────────────────────────────────────────────────
 # When set, the AI backend reads from MediaMTX RTSP re-exposure instead of the

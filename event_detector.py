@@ -968,7 +968,15 @@ class EventDetector:
             _label_by_person = {}
             for i, p in enumerate(event_persons):
                 _label_by_person[id(p)] = person_labels.get(i, ("persona", _COLOR_PERSON))
-            for p in persons:
+            # Dedup por IoU: YOLO a veces devuelve 2-3 cajas solapadas sobre la
+            # misma persona (sobre todo si se mueve). Nos quedamos con la de mayor
+            # confianza y descartamos las que se solapan >0.55 con una ya dibujada.
+            _to_draw = []
+            for p in sorted(persons, key=lambda b: b.get("conf", 0), reverse=True):
+                if any(_iou(p["xyxy"], q["xyxy"]) > 0.55 for q in _to_draw):
+                    continue
+                _to_draw.append(p)
+            for p in _to_draw:
                 text, col = _label_by_person.get(
                     id(p), (f"persona {p['conf']*100:.0f}%", _COLOR_PERSON))
                 _draw_box(annotated, p["xyxy"], col, text)
