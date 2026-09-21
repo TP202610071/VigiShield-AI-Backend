@@ -767,6 +767,12 @@ class PersonTracker:
                 continue
             tr = self._tracks[tid]
             dt = now - tr["last_seen"]
+            # Si de verdad se fue (no un parpadeo del detector ni una oclusión
+            # breve), conserva su identidad y su riesgo pero reinicia el reloj de
+            # permanencia: el merodeo mide cuánto lleva AQUÍ sin irse, no la edad
+            # del track.
+            if dt > config.PERSON_TRACK_TTL_SECONDS:
+                tr["first_seen"] = now
             if dt > 0:
                 ocx, ocy = _center(tr["bbox"])
                 ncx, ncy = _center(persons[i]["xyxy"])
