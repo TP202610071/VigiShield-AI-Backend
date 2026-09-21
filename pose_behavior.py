@@ -14,8 +14,9 @@ personas eso mezclaba los keypoints de unas y otras dentro de la misma ventana
 todas quedaban marcadas. Ahora cada persona acumula su propia ventana y recibe su
 propio veredicto.
 
-Diseñado para CPU: la pose se ejecuta una sola vez cada BEHAVIOR_RUN_EVERY frames
-y sólo cuando hay personas en escena, para no saturar la VM.
+Diseñado para CPU: la pose se ejecuta una sola vez por muestra (no por persona),
+a la cadencia con la que se entrenó el modelo y sólo cuando hay personas en
+escena, para no saturar la VM.
 """
 from __future__ import annotations
 
@@ -94,11 +95,21 @@ class PoseBehaviorDetector:
         self._window = int(meta.get("window", 16))
         self._classes = list(self._clf.classes_)
         self._states: dict[int, _PersonState] = {}
-        self._n = 0
         self._last: dict[int, tuple] = {}
-        logger.info("PoseBehaviorDetector listo — clases=%s, ventana=%d, cada %d frames, "
-                    "umbral on=%.2f off=%.2f (on=%d ventanas, off=%d)",
-                    self._classes, self._window, config.BEHAVIOR_RUN_EVERY,
+
+        # CADENCIA — debe igualar la del entrenamiento. El modelo se entrenó con
+        # ventanas muestreadas a `sample_fps` (2 fps => 16 muestras = 8 s de
+        # movimiento). Si en producción se muestrea más lento, cada ventana cubre
+        # mucho más tiempo real y el clasificador ve un movimiento que nunca vio
+        # al entrenar (la persona "teletransportándose"), de ahí veredictos
+        # erráticos. Por eso el período se deriva del propio modelo y no de un
+        # número de cuadros fijado a mano.
+        fps = config.BEHAVIOR_SAMPLE_FPS or float(meta.get("sample_fps", 2.0))
+        self._period = 1.0 / max(0.1, fps)
+        self._last_pose_ts = 0.0
+        logger.info("PoseBehaviorDetector listo — clases=%s, ventana=%d muestras a %.1f fps "
+                    "(%.1fs por ventana), umbral on=%.2f off=%.2f (on=%d ventanas, off=%d)",
+                    self._classes, self._window, fps, self._window * self._period,
                     config.BEHAVIOR_SUSPICIOUS_THRESHOLD, config.BEHAVIOR_NORMAL_THRESHOLD,
                     config.BEHAVIOR_ON_WINDOWS, config.BEHAVIOR_OFF_WINDOWS)
 
@@ -110,9 +121,10 @@ class PoseBehaviorDetector:
         # Sin personas: olvida todo y no gasta CPU.
         if not track_boxes:
             self._states.clear(); self._last = {}; return self._last
-        self._n += 1
-        if self._n % config.BEHAVIOR_RUN_EVERY != 0:
+        # Muestreo a la cadencia del entrenamiento (no a la del stream).
+        if now - self._last_pose_ts < self._period * 0.9:
             return self._last
+        self._last_pose_ts = now
         try:
             H, W = frame.shape[:2]
             res = self._model.predict(frame, verbose=False)[0]

@@ -114,14 +114,18 @@ CAIEE_INCIDENT_HOLD_SECONDS: float = float(os.getenv("CAIEE_INCIDENT_HOLD_SECOND
 # ── Modelo de comportamiento entrenado (YOLOv8-Pose + Random Forest) ──────────
 # Clasifica ventanas de keypoints como Normal/Sospechoso; su salida entra al CAIEE
 # como una señal de peso alto. Desactivado por defecto hasta desplegar el .pkl y
-# validar el costo de CPU en la VM. Se corre cada BEHAVIOR_RUN_EVERY frames.
+# validar el costo de CPU en la VM.
 BEHAVIOR_MODEL_ENABLED: bool = os.getenv("BEHAVIOR_MODEL_ENABLED", "false").lower() in ("1", "true", "yes")
 BEHAVIOR_MODEL_PATH: str = os.getenv("BEHAVIOR_MODEL_PATH",
     str(Path(__file__).parent / "models" / "behavior_rf_binary.pkl"))
 BEHAVIOR_MODEL_META: str = os.getenv("BEHAVIOR_MODEL_META",
     str(Path(__file__).parent / "models" / "behavior_rf_binary_meta.json"))
 BEHAVIOR_POSE_MODEL: str = os.getenv("BEHAVIOR_POSE_MODEL", "yolov8n-pose.pt")
-BEHAVIOR_RUN_EVERY: int = int(os.getenv("BEHAVIOR_RUN_EVERY", "3"))
+# Cadencia de muestreo de la pose. Por defecto (0) se toma la del ENTRENAMIENTO,
+# que viene en el meta del modelo (sample_fps): la ventana debe cubrir el mismo
+# tiempo real que cubría al entrenar o el clasificador ve otra cosa. Sólo fijar a
+# mano para experimentar o para aliviar CPU a costa de precisión.
+BEHAVIOR_SAMPLE_FPS: float = float(os.getenv("BEHAVIOR_SAMPLE_FPS", "0"))
 # Umbral de probabilidad para considerar "Sospechoso". Alto a propósito: la
 # precisión honesta de la clase Sospechoso es ~0.64, así que un umbral bajo llena
 # la escena de falsos positivos (p.ej. niños jugando = movimiento rápido).
