@@ -29,6 +29,7 @@ import numpy as np
 import config
 from caiee import Evidence, IntentEngine
 from zones import parse_zones
+from pose_behavior import PoseBehaviorDetector
 
 logger = logging.getLogger(__name__)
 
@@ -774,6 +775,13 @@ class EventDetector:
         self._caiee = IntentEngine() if config.CAIEE_ENABLED else None
         if self._caiee:
             logger.info("[%s] CAIEE enabled (%d zone(s))", camera_name, len(self._zones))
+        # Modelo entrenado de comportamiento (pose+RF) — señal de peso alto al CAIEE.
+        self._behavior_model = None
+        if config.BEHAVIOR_MODEL_ENABLED:
+            try:
+                self._behavior_model = PoseBehaviorDetector()
+            except Exception as e:
+                logger.error("[%s] Modelo de comportamiento no cargó: %s", camera_name, e)
 
         self._activity: ActivityDetector | None = None
         if config.ACTIVITY_ENABLED:
@@ -910,6 +918,11 @@ class EventDetector:
             H, W = frame.shape[:2]
             group = len(event_persons) >= 3
             night = _is_nighttime()
+            # Modelo entrenado de comportamiento (señal a nivel de cuadro).
+            beh_label, beh_conf = ("Normal", 0.0)
+            if self._behavior_model is not None:
+                beh_label, beh_conf = self._behavior_model.update(frame, bool(event_persons))
+            _model_susp = (beh_label == "Sospechoso")
             for i, p in enumerate(event_persons):
                 tid = assign.get(i)
                 if tid is None:
@@ -934,6 +947,8 @@ class EventDetector:
                     night=night,
                     anomalous_posture=(pw > 0 and ph > 0 and (ph / pw) < 0.9),
                     approaching=False,
+                    model_suspicious=_model_susp,
+                    model_conf=beh_conf,
                 )
                 intent_ev = self._caiee.update(tid, ev, now)
                 if intent_ev:
