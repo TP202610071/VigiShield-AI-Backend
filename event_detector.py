@@ -211,12 +211,17 @@ def _confident_persons(persons: list[dict], frame_shape) -> list[dict]:
         out.append(p)
     return out
 
-# Colors are BGR (OpenCV).
-_COLOR_PERSON = (90, 220, 90)
+# Colors are BGR (OpenCV). El VERDE significa "persona autorizada y sin riesgo";
+# nunca se usa para una persona sin identificar (antes una caja verde daba a
+# entender "todo bien" cuando el sistema en realidad no sabía quién era).
+_COLOR_PERSON = (190, 190, 190)        # neutro: hay alguien, aún sin juicio
 _COLOR_WEAPON = (40, 40, 235)
 _COLOR_OBJECT = (235, 200, 70)
-_COLOR_FACE_KNOWN = (90, 220, 90)
-_COLOR_FACE_UNKNOWN = (40, 40, 235)
+_COLOR_FACE_KNOWN = (90, 220, 90)      # verde: rostro autorizado
+_COLOR_FACE_UNKNOWN = (40, 170, 255)   # ámbar: desconocido (no es una amenaza aún)
+_COLOR_RISK_WATCH = (60, 200, 250)
+_COLOR_RISK_SUSPECT = (40, 140, 255)   # naranja
+_COLOR_RISK_HIGH = (40, 40, 235)       # rojo: riesgo confirmado
 _COLOR_OK = (90, 200, 90)
 _COLOR_WARN = (40, 40, 235)
 
@@ -260,6 +265,10 @@ def _iou(a: tuple, b: tuple) -> float:
     area_a = (ax2 - ax1) * (ay2 - ay1)
     area_b = (bx2 - bx1) * (by2 - by1)
     return inter / float(area_a + area_b - inter)
+
+
+def _center(box: tuple) -> tuple[float, float]:
+    return ((box[0] + box[2]) / 2.0, (box[1] + box[3]) / 2.0)
 
 
 def _center_inside(inner: tuple, outer: tuple) -> bool:
@@ -682,44 +691,100 @@ class BehaviorAnalyzer:
 
 
 class PersonTracker:
-    """Tracks confident persons across frames (greedy IoU matching) so that:
+    """Tracks confident persons across frames so that:
       - a NEW person gets a grace window to be recognized before an UnknownFace
         alert fires (config.UNKNOWN_ALERT_GRACE_SECONDS) — time to walk up to the cam,
       - once recognized, a track KEEPS that identity even if the face is no longer
         visible,
       - each track alerts at most once (no alert/WhatsApp spam),
-      - a person who leaves for > TTL and returns counts as a new person.
+      - a person who leaves for > LOST window and returns counts as a new person.
+
+    Asociación en dos pasadas: primero IoU (caja contra caja) y, si el IoU cae a
+    cero porque la persona se movió rápido o quedó tapada un instante, un segundo
+    criterio por CERCANÍA del centro. Sin ese respaldo, una persona en movimiento
+    recibía un ID nuevo en cada zancada y perdía su identidad y el riesgo que el
+    motor de intención ya le había acumulado (volvía a "Identificando…").
+
+    Además un track no se borra al desaparecer: queda "perdido" durante
+    PERSON_TRACK_LOST_SECONDS y puede recuperarse con todo su estado.
     """
 
     def __init__(self):
         self._tracks: dict[int, dict] = {}
         self._next_id = 1
 
+    def _visible(self, tr: dict, now: float) -> bool:
+        """Presente en escena (vs. conservado sólo para poder reasociarlo)."""
+        return now - tr["last_seen"] <= config.PERSON_TRACK_TTL_SECONDS
+
     def update(self, persons: list[dict], now: float) -> dict[int, int]:
         """Match person boxes to tracks. Returns {person_index: track_id}."""
         for tid in [t for t, tr in self._tracks.items()
-                    if now - tr["last_seen"] > config.PERSON_TRACK_TTL_SECONDS]:
+                    if now - tr["last_seen"] > config.PERSON_TRACK_LOST_SECONDS]:
             del self._tracks[tid]
+
+        # Puntúa TODOS los pares (persona, track) y resuelve de mayor a menor, en
+        # vez de decidir persona por persona: evita que la primera persona se quede
+        # con el track que en realidad correspondía a la segunda.
+        # Posición PREVISTA de cada track según su velocidad: cuando dos personas
+        # se cruzan sus cajas se superponen y comparar contra la última caja
+        # intercambia las identidades. Comparar contra hacia dónde iba cada una
+        # las desambigua.
+        pred: dict[int, tuple] = {}
+        for tid, tr in self._tracks.items():
+            dt = min(2.0, max(0.0, now - tr["last_seen"]))
+            dx, dy = tr.get("vx", 0.0) * dt, tr.get("vy", 0.0) * dt
+            x1, y1, x2, y2 = tr["bbox"]
+            pred[tid] = (x1 + dx, y1 + dy, x2 + dx, y2 + dy)
+
+        pairs: list[tuple[float, int, int]] = []
+        for i, p in enumerate(persons):
+            pcx, pcy = _center(p["xyxy"])
+            pw = max(1.0, p["xyxy"][2] - p["xyxy"][0])
+            ph = max(1.0, p["xyxy"][3] - p["xyxy"][1])
+            # Radio de reasociación proporcional al TAMAÑO de la persona (una
+            # persona cercana/grande se desplaza más píxeles por cuadro).
+            radius = config.PERSON_TRACK_DIST_FRAC * 6.0 * max(pw, ph * 0.5)
+            for tid, tr in self._tracks.items():
+                # Pesa más el solape con la posición PREVISTA que con la última
+                # vista: al cruzarse dos personas, la última caja de un track cae
+                # justo encima de la OTRA persona y bastaba para robarle el id.
+                iou = (0.65 * _iou(p["xyxy"], pred[tid])
+                       + 0.35 * _iou(p["xyxy"], tr["bbox"]))
+                if iou >= config.PERSON_TRACK_IOU:
+                    pairs.append((1.0 + iou, i, tid))   # match fuerte
+                    continue
+                tcx, tcy = _center(pred[tid])
+                d = ((pcx - tcx) ** 2 + (pcy - tcy) ** 2) ** 0.5
+                if d <= radius:
+                    pairs.append((1.0 - d / radius, i, tid))  # match por cercanía
+
+        pairs.sort(reverse=True)
         assign: dict[int, int] = {}
         used: set[int] = set()
+        for _score, i, tid in pairs:
+            if i in assign or tid in used:
+                continue
+            tr = self._tracks[tid]
+            dt = now - tr["last_seen"]
+            if dt > 0:
+                ocx, ocy = _center(tr["bbox"])
+                ncx, ncy = _center(persons[i]["xyxy"])
+                vx, vy = (ncx - ocx) / dt, (ncy - ocy) / dt
+                tr["vx"] = tr.get("vx", vx) + (vx - tr.get("vx", vx)) * 0.5
+                tr["vy"] = tr.get("vy", vy) + (vy - tr.get("vy", vy)) * 0.5
+            tr["bbox"] = persons[i]["xyxy"]; tr["last_seen"] = now
+            assign[i] = tid; used.add(tid)
+
         for i, p in enumerate(persons):
-            best_iou, best_tid = 0.0, None
-            for tid, tr in self._tracks.items():
-                if tid in used:
-                    continue
-                iou = _iou(p["xyxy"], tr["bbox"])
-                if iou > best_iou:
-                    best_iou, best_tid = iou, tid
-            if best_tid is not None and best_iou >= config.PERSON_TRACK_IOU:
-                tr = self._tracks[best_tid]
-                tr["bbox"] = p["xyxy"]; tr["last_seen"] = now
-                assign[i] = best_tid; used.add(best_tid)
-            else:
-                tid = self._next_id; self._next_id += 1
-                self._tracks[tid] = {"bbox": p["xyxy"], "first_seen": now,
-                                     "last_seen": now, "state": "pending",
-                                     "name": None, "alerted": False}
-                assign[i] = tid
+            if i in assign:
+                continue
+            tid = self._next_id; self._next_id += 1
+            self._tracks[tid] = {"bbox": p["xyxy"], "first_seen": now,
+                                 "last_seen": now, "state": "pending",
+                                 "name": None, "alerted": False,
+                                 "vx": 0.0, "vy": 0.0}
+            assign[i] = tid
         return assign
 
     def mark_known(self, tid: int, name: str) -> bool:
@@ -734,7 +799,7 @@ class PersonTracker:
         """Track ids unrecognized past the grace window → fire UnknownFace once."""
         out = []
         for tid, tr in self._tracks.items():
-            if (tr["state"] == "pending" and not tr["alerted"]
+            if (self._visible(tr, now) and tr["state"] == "pending" and not tr["alerted"]
                     and now - tr["first_seen"] >= config.UNKNOWN_ALERT_GRACE_SECONDS):
                 tr["alerted"] = True; tr["state"] = "unknown"
                 out.append(tid)
@@ -743,11 +808,13 @@ class PersonTracker:
     def get(self, tid) -> dict | None:
         return self._tracks.get(tid)
 
-    def any_unknown(self) -> bool:
-        return any(tr["state"] == "unknown" for tr in self._tracks.values())
+    def any_unknown(self, now: float) -> bool:
+        return any(tr["state"] == "unknown" and self._visible(tr, now)
+                   for tr in self._tracks.values())
 
     def active_ids(self) -> set[int]:
-        """Ids de tracks vivos (para que el CAIEE olvide los que expiraron)."""
+        """Ids de tracks presentes O recuperables — el motor de intención conserva
+        su riesgo mientras el track todavía pueda reasociarse."""
         return set(self._tracks.keys())
 
 
@@ -772,7 +839,11 @@ class EventDetector:
         self._zones = parse_zones(zones_raw)
         # CAIEE — anticipatory intent estimation. Independent of the models; it
         # consumes their outputs + zones as evidence. Optional via config flag.
-        self._caiee = IntentEngine() if config.CAIEE_ENABLED else None
+        self._caiee = IntentEngine(
+            risk_memory_seconds=config.CAIEE_RISK_MEMORY_SECONDS,
+            incident_hold_seconds=config.CAIEE_INCIDENT_HOLD_SECONDS,
+            model_min_conf=config.BEHAVIOR_SUSPICIOUS_THRESHOLD,
+        ) if config.CAIEE_ENABLED else None
         if self._caiee:
             logger.info("[%s] CAIEE enabled (%d zone(s))", camera_name, len(self._zones))
         # Modelo entrenado de comportamiento (pose+RF) — señal de peso alto al CAIEE.
@@ -895,7 +966,7 @@ class EventDetector:
             elif tr and tr["state"] == "unknown":
                 person_labels[i] = ("Desconocido", _COLOR_FACE_UNKNOWN)
             else:
-                person_labels[i] = ("Identificando...", _COLOR_OBJECT)
+                person_labels[i] = ("Identificando...", _COLOR_PERSON)
 
         # Keep the current detections for event snapshots (drawn with boxes).
         self.last_draw = {
@@ -914,15 +985,18 @@ class EventDetector:
         # Usa las salidas de arriba + las zonas del usuario como EVIDENCIA. No
         # reemplaza las reglas; agrega una decisión anticipatoria de alto riesgo.
         intent_state, intent_score = ("calm", 0.0)
+        track_risk: dict[int, tuple[str, float]] = {}
         if self._caiee is not None:
             H, W = frame.shape[:2]
             group = len(event_persons) >= 3
             night = _is_nighttime()
-            # Modelo entrenado de comportamiento (señal a nivel de cuadro).
-            beh_label, beh_conf = ("Normal", 0.0)
+            # Modelo entrenado de comportamiento — un veredicto POR PERSONA, no uno
+            # para toda la escena (antes el comportamiento de uno contagiaba al resto).
+            beh_by_track: dict[int, tuple] = {}
             if self._behavior_model is not None:
-                beh_label, beh_conf = self._behavior_model.update(frame, bool(event_persons))
-            _model_susp = (beh_label == "Sospechoso")
+                _boxes = {assign[i]: p["xyxy"] for i, p in enumerate(event_persons)
+                          if assign.get(i) is not None}
+                beh_by_track = self._behavior_model.update(frame, _boxes, now)
             for i, p in enumerate(event_persons):
                 tid = assign.get(i)
                 if tid is None:
@@ -936,6 +1010,7 @@ class EventDetector:
                 weapon_near = any(
                     _center_inside(wb["xyxy"], p["xyxy"]) or _iou(wb["xyxy"], p["xyxy"]) > 0.0
                     for wb in weapons)
+                beh_label, beh_conf = beh_by_track.get(tid, ("Normal", 0.0))
                 ev = Evidence(
                     is_unknown=(state == "unknown"),
                     is_known=(state == "known"),
@@ -947,18 +1022,32 @@ class EventDetector:
                     night=night,
                     anomalous_posture=(pw > 0 and ph > 0 and (ph / pw) < 0.9),
                     approaching=False,
-                    model_suspicious=_model_susp,
+                    model_suspicious=(beh_label == "Sospechoso"),
                     model_conf=beh_conf,
                 )
                 intent_ev = self._caiee.update(tid, ev, now)
                 if intent_ev:
                     candidates.append(intent_ev)
-            self._caiee.forget(self._tracker.active_ids())
-            intent_state, intent_score = self._caiee.max_state()
+                st, sc = self._caiee.state_of(tid)
+                track_risk[i] = (st, sc)
+            self._caiee.forget(self._tracker.active_ids(), now)
+            intent_state, intent_score = self._caiee.max_state(now)
+
+        # El riesgo por persona manda sobre la etiqueta: el verde queda reservado
+        # para alguien AUTORIZADO y sin riesgo; si el motor lo marcó, se ve ámbar
+        # o rojo con su puntaje, aunque el rostro ya no sea visible.
+        for i, (st, sc) in track_risk.items():
+            base = person_labels.get(i, ("persona", _COLOR_PERSON))[0]
+            if st == "high_risk":
+                person_labels[i] = (f"{base} RIESGO {sc:.0f}", _COLOR_RISK_HIGH)
+            elif st == "suspect":
+                person_labels[i] = (f"{base} sospechoso {sc:.0f}", _COLOR_RISK_SUSPECT)
+            elif st == "watch":
+                person_labels[i] = (f"{base} ?", _COLOR_RISK_WATCH)
 
         overall_suspicious = bool(
             weapons or armed
-            or self._tracker.any_unknown()
+            or self._tracker.any_unknown(now)
             or intent_state in ("suspect", "high_risk")
             or any(a[1] in ("High", "Critical") for a in alerts))
 

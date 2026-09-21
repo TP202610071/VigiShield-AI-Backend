@@ -66,6 +66,11 @@ TH_HIGH_EXIT = 52.0
 # Cuántos cuadros consecutivos por encima del umbral alto para CONFIRMAR (sostén).
 HIGH_CONFIRM_FRAMES = 3
 
+# Enclavamiento del riesgo: tras alcanzar un estado de riesgo, el puntaje no puede
+# caer por debajo de un piso durante este tiempo. Una intrusión en curso no deja de
+# serlo porque el sujeto se agache un momento o el modelo dude unos cuadros.
+RISK_LATCH_SECONDS = 40.0
+
 # No repetir la alerta anticipatoria de un mismo track más seguido que esto.
 INTENT_COOLDOWN_SECONDS = 120.0
 
@@ -99,22 +104,64 @@ class _TrackRisk:
     score: float = 0.0
     state: str = S_CALM
     high_streak: int = 0
-    last_alert: float = 0.0
+    # Muy negativo, no 0: `now` es time.monotonic() (uptime del proceso), así que
+    # con 0 el cooldown "ya transcurrido" no se cumplía y durante los primeros
+    # INTENT_COOLDOWN_SECONDS de vida del servicio ninguna alerta podía dispararse.
+    last_alert: float = -1e9
     peak_reasons: list[str] = field(default_factory=list)
+    last_update: float = 0.0
+    # Piso de riesgo temporal: una vez que la persona alcanzó SUSPECT/HIGH, el
+    # puntaje no puede desplomarse durante RISK_LATCH_SECONDS.
+    floor: float = 0.0
+    floor_until: float = 0.0
 
 
 class IntentEngine:
     """CAIEE para UNA cámara: mantiene el riesgo por track y decide alertas."""
 
-    def __init__(self):
+    def __init__(self, risk_memory_seconds: float = 45.0,
+                 incident_hold_seconds: float = 60.0,
+                 model_min_conf: float = 0.78):
         self._tracks: dict[int, _TrackRisk] = {}
+        self._risk_memory = risk_memory_seconds
+        self._incident_hold = incident_hold_seconds
+        self._model_min_conf = min(0.95, max(0.0, model_min_conf))
+        # Persistencia de incidente a nivel de CÁMARA: si en algún momento hubo
+        # riesgo confirmado, la escena sigue marcada como sospechosa un rato
+        # aunque los tracks se pierdan o el modelo dude (un robo en curso no deja
+        # de serlo porque una ventana de 16 cuadros salga "Normal").
+        self._incident_until = 0.0
+        self._incident_state = S_CALM
+        self._incident_score = 0.0
 
-    def forget(self, active_track_ids: set[int]) -> None:
-        """Olvida el estado de tracks que ya expiraron en el tracker."""
-        for tid in [t for t in self._tracks if t not in active_track_ids]:
+    def forget(self, active_track_ids: set[int], now: float | None = None) -> None:
+        """
+        Olvida tracks que ya no existen, pero NO de inmediato: conserva su riesgo
+        durante `risk_memory_seconds` por si la persona reaparece (el tracker
+        reusa el id). Antes se borraba al instante y una persona que se movía
+        volvía a riesgo cero aunque siguiera con el mismo comportamiento.
+        """
+        now = time.monotonic() if now is None else now
+        for tid in [t for t, tr in self._tracks.items()
+                    if t not in active_track_ids
+                    and now - tr.last_update > self._risk_memory]:
             del self._tracks[tid]
 
     # ── Scoring instantáneo ───────────────────────────────────────────────────
+    def _model_factor(self, conf: float) -> float:
+        """
+        Peso del modelo entrenado, escalado por cuánto SUPERA su umbral.
+
+        La precisión honesta de la clase Sospechoso es ~0.64: una detección justo
+        en el umbral es casi una moneda al aire y no debe, por sí sola, empujar la
+        escena a riesgo alto. Con este escalado una detección marginal aporta poco
+        y sólo una muy confiada aporta el peso completo.
+        """
+        lo = self._model_min_conf
+        m = (conf - lo) / max(1e-6, 1.0 - lo)
+        m = max(0.0, min(1.0, m))
+        return 0.35 + 0.65 * m
+
     def _instant_score(self, ev: Evidence) -> tuple[float, list[str]]:
         e = 0.0
         reasons: list[str] = []
@@ -144,8 +191,8 @@ class IntentEngine:
         if ev.violence:
             e += W_WEAPON; reasons.append("violencia")  # trata violencia como crítica
         if ev.model_suspicious:
-            # peso proporcional a la confianza del modelo (0.5..1.0 del peso base)
-            e += W_MODEL * (0.5 + 0.5 * max(0.0, min(1.0, ev.model_conf)))
+            # peso proporcional a cuánto supera el umbral (0.35..1.0 del peso base)
+            e += W_MODEL * self._model_factor(ev.model_conf)
             reasons.append("modelo:sospechoso")
         if ev.night:
             e += W_NIGHT
@@ -167,6 +214,7 @@ class IntentEngine:
         """
         now = time.monotonic() if now is None else now
         tr = self._tracks.setdefault(track_id, _TrackRisk())
+        tr.last_update = now
 
         e, reasons = self._instant_score(ev)
         # Integración temporal asimétrica (sube lento, baja más lento).
@@ -174,8 +222,26 @@ class IntentEngine:
         tr.score += (e - tr.score) * alpha
         tr.score = max(0.0, min(100.0, tr.score))
 
+        # Enclavamiento (latch): al alcanzar riesgo sostenido se fija un PISO que
+        # dura RISK_LATCH_SECONDS. Sin esto, dos cuadros de duda bastaban para que
+        # una persona forzando una ventana volviera a "normal".
+        if tr.score >= TH_HIGH_ENTER:
+            tr.floor = max(tr.floor, TH_HIGH_EXIT); tr.floor_until = now + RISK_LATCH_SECONDS
+        elif tr.score >= TH_SUSPECT:
+            tr.floor = max(tr.floor, TH_SUSPECT - 2.0); tr.floor_until = now + RISK_LATCH_SECONDS
+        if now < tr.floor_until:
+            tr.score = max(tr.score, tr.floor)
+        else:
+            tr.floor = 0.0
+
         prev_state = tr.state
         tr.state = self._state_for(tr.score, prev_state)
+
+        if tr.state in (S_SUSPECT, S_HIGH):
+            self._incident_until = now + self._incident_hold
+            if tr.state == S_HIGH or self._incident_state != S_HIGH:
+                self._incident_state = tr.state
+            self._incident_score = max(self._incident_score, tr.score)
 
         if reasons and tr.score >= TH_SUSPECT:
             tr.peak_reasons = reasons  # guarda las razones del momento de mayor riesgo
@@ -186,7 +252,9 @@ class IntentEngine:
         elif tr.score < TH_HIGH_EXIT:
             tr.high_streak = 0
 
-        confirmed = tr.high_streak == HIGH_CONFIRM_FRAMES  # dispara UNA vez al confirmar
+        # >= y no == : si justo en ese cuadro el cooldown aún no había vencido, con
+        # == la alerta se perdía para siempre hasta que la racha se reiniciara.
+        confirmed = tr.high_streak >= HIGH_CONFIRM_FRAMES
         cooled = now - tr.last_alert >= INTENT_COOLDOWN_SECONDS
         if confirmed and cooled:
             tr.last_alert = now
@@ -221,9 +289,23 @@ class IntentEngine:
         tr = self._tracks.get(track_id)
         return (tr.state, tr.score) if tr else (S_CALM, 0.0)
 
-    def max_state(self) -> tuple[str, float]:
-        """Estado/score más alto entre los tracks activos (para el banner)."""
-        if not self._tracks:
-            return (S_CALM, 0.0)
-        tr = max(self._tracks.values(), key=lambda t: t.score)
-        return (tr.state, tr.score)
+    def max_state(self, now: float | None = None) -> tuple[str, float]:
+        """
+        Estado/score más alto para el banner de la app.
+
+        Mientras el incidente está vigente devuelve al menos el estado alcanzado,
+        aunque en este instante no haya ningún track por encima del umbral: la
+        escena se considera "en incidente" hasta que pase el tiempo de retención.
+        """
+        now = time.monotonic() if now is None else now
+        best = (S_CALM, 0.0)
+        if self._tracks:
+            tr = max(self._tracks.values(), key=lambda t: t.score)
+            best = (tr.state, tr.score)
+        if now < self._incident_until:
+            order = {S_CALM: 0, S_WATCH: 1, S_SUSPECT: 2, S_HIGH: 3}
+            if order[self._incident_state] > order[best[0]]:
+                best = (self._incident_state, max(best[1], self._incident_score))
+        else:
+            self._incident_state, self._incident_score = S_CALM, 0.0
+        return best

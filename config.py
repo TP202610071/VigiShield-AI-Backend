@@ -76,8 +76,16 @@ UNKNOWN_FACE_MIN_STREAK: int = int(os.getenv("UNKNOWN_FACE_MIN_STREAK", "2"))
 # face is no longer visible; each track alerts at most once (no WhatsApp/app spam).
 # A track expires after this idle TTL — a person who leaves and returns is "new".
 UNKNOWN_ALERT_GRACE_SECONDS: float = float(os.getenv("UNKNOWN_ALERT_GRACE_SECONDS", "8"))
-PERSON_TRACK_TTL_SECONDS: float = float(os.getenv("PERSON_TRACK_TTL_SECONDS", "4"))
-PERSON_TRACK_IOU: float = float(os.getenv("PERSON_TRACK_IOU", "0.25"))
+PERSON_TRACK_TTL_SECONDS: float = float(os.getenv("PERSON_TRACK_TTL_SECONDS", "12"))
+PERSON_TRACK_IOU: float = float(os.getenv("PERSON_TRACK_IOU", "0.15"))
+# Fallback por CERCANÍA cuando el IoU cae a 0 (persona que se mueve rápido o queda
+# tapada un instante): se reasocia si el centro de la caja está a menos de esta
+# fracción de la diagonal del frame respecto del último centro conocido del track.
+# Evita que una persona en movimiento reciba un ID nuevo (y pierda identidad/riesgo).
+PERSON_TRACK_DIST_FRAC: float = float(os.getenv("PERSON_TRACK_DIST_FRAC", "0.18"))
+# Un track no visto se conserva "perdido" (sin dibujarse) por este tiempo para poder
+# recuperarlo con su identidad y su riesgo acumulado si la persona reaparece.
+PERSON_TRACK_LOST_SECONDS: float = float(os.getenv("PERSON_TRACK_LOST_SECONDS", "25"))
 
 # ── Activity model ────────────────────────────────────────────────────────────
 # The UCF-Crime activity model is mis-domained (odd labels like "Meet_and_Split")
@@ -94,6 +102,14 @@ LOITER_SECONDS: float = float(os.getenv("LOITER_SECONDS", "25"))
 # por el usuario para estimar RIESGO por persona y avisar antes de la intrusión.
 # Conservador por diseño (prioriza certeza / mínimos falsos positivos).
 CAIEE_ENABLED: bool = os.getenv("CAIEE_ENABLED", "true").lower() in ("1", "true", "yes")
+# Memoria de riesgo: el puntaje de una persona NO se borra apenas desaparece del
+# cuadro; se conserva este tiempo para que, si reaparece (mismo track), siga con el
+# riesgo acumulado en vez de volver a cero.
+CAIEE_RISK_MEMORY_SECONDS: float = float(os.getenv("CAIEE_RISK_MEMORY_SECONDS", "45"))
+# Persistencia de incidente: una vez que la cámara entra en "sospechoso", mantiene
+# ese estado al menos este tiempo aunque el puntaje baje (un robo no deja de serlo
+# porque el modelo dude unos cuadros).
+CAIEE_INCIDENT_HOLD_SECONDS: float = float(os.getenv("CAIEE_INCIDENT_HOLD_SECONDS", "60"))
 
 # ── Modelo de comportamiento entrenado (YOLOv8-Pose + Random Forest) ──────────
 # Clasifica ventanas de keypoints como Normal/Sospechoso; su salida entra al CAIEE
@@ -106,8 +122,18 @@ BEHAVIOR_MODEL_META: str = os.getenv("BEHAVIOR_MODEL_META",
     str(Path(__file__).parent / "models" / "behavior_rf_binary_meta.json"))
 BEHAVIOR_POSE_MODEL: str = os.getenv("BEHAVIOR_POSE_MODEL", "yolov8n-pose.pt")
 BEHAVIOR_RUN_EVERY: int = int(os.getenv("BEHAVIOR_RUN_EVERY", "3"))
-# Umbral de probabilidad para considerar "Sospechoso".
-BEHAVIOR_SUSPICIOUS_THRESHOLD: float = float(os.getenv("BEHAVIOR_SUSPICIOUS_THRESHOLD", "0.6"))
+# Umbral de probabilidad para considerar "Sospechoso". Alto a propósito: la
+# precisión honesta de la clase Sospechoso es ~0.64, así que un umbral bajo llena
+# la escena de falsos positivos (p.ej. niños jugando = movimiento rápido).
+BEHAVIOR_SUSPICIOUS_THRESHOLD: float = float(os.getenv("BEHAVIOR_SUSPICIOUS_THRESHOLD", "0.78"))
+# Umbral de SALIDA (histéresis): una vez marcado sospechoso, se mantiene mientras
+# la probabilidad siga por encima de esto.
+BEHAVIOR_NORMAL_THRESHOLD: float = float(os.getenv("BEHAVIOR_NORMAL_THRESHOLD", "0.55"))
+# Ventanas consecutivas necesarias para ENCENDER / APAGAR el veredicto del modelo.
+# Encender cuesta (evita el pico aislado); apagar cuesta más (evita el parpadeo
+# sospechoso→normal en mitad de una intrusión).
+BEHAVIOR_ON_WINDOWS: int = int(os.getenv("BEHAVIOR_ON_WINDOWS", "2"))
+BEHAVIOR_OFF_WINDOWS: int = int(os.getenv("BEHAVIOR_OFF_WINDOWS", "5"))
 
 # Objects kept in the annotated view + status (COCO class names). Everything else
 # (furniture, appliances, vehicles, etc.) is dropped so YOLO misclassifications
