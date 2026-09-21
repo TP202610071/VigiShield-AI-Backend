@@ -46,6 +46,7 @@ W_GROUP = 10.0            # varias personas a la vez
 W_NIGHT = 9.0             # horario nocturno
 W_POSTURE = 15.0          # postura anómala (agachado/trepando)
 W_APPROACH = 12.0         # se aproxima / cruzó hacia la entrada
+W_MODEL = 40.0            # el modelo entrenado (pose+RF) clasificó "Sospechoso" (alta precisión)
 
 # Atenuación cuando la persona está reconocida como autorizada.
 KNOWN_ATTENUATION = 0.15
@@ -88,7 +89,9 @@ class Evidence:
     night: bool = False
     anomalous_posture: bool = False
     approaching: bool = False
-    violence: bool = False            # (futuro) salida del modelo de violencia
+    violence: bool = False            # (compat) señal de violencia directa
+    model_suspicious: bool = False    # el modelo entrenado (pose+RF) marcó "Sospechoso"
+    model_conf: float = 0.0           # probabilidad del modelo (0..1)
 
 
 @dataclass
@@ -140,12 +143,17 @@ class IntentEngine:
             e += W_GROUP; reasons.append("grupo")
         if ev.violence:
             e += W_WEAPON; reasons.append("violencia")  # trata violencia como crítica
+        if ev.model_suspicious:
+            # peso proporcional a la confianza del modelo (0.5..1.0 del peso base)
+            e += W_MODEL * (0.5 + 0.5 * max(0.0, min(1.0, ev.model_conf)))
+            reasons.append("modelo:sospechoso")
         if ev.night:
             e += W_NIGHT
 
-        # Una persona autorizada casi nunca es amenaza: atenúa fuerte (salvo que
-        # haya un arma, donde no queremos ocultar el riesgo).
-        if ev.is_known and not ev.weapon_near:
+        # Una persona autorizada casi nunca es amenaza: atenúa fuerte, SALVO que
+        # haya un arma o el modelo detecte comportamiento sospechoso (una acción
+        # violenta/peligrosa importa aunque la persona sea conocida).
+        if ev.is_known and not ev.weapon_near and not ev.model_suspicious:
             e *= KNOWN_ATTENUATION
             reasons = [r for r in reasons if r != "arma"]
 

@@ -95,6 +95,20 @@ LOITER_SECONDS: float = float(os.getenv("LOITER_SECONDS", "25"))
 # Conservador por diseño (prioriza certeza / mínimos falsos positivos).
 CAIEE_ENABLED: bool = os.getenv("CAIEE_ENABLED", "true").lower() in ("1", "true", "yes")
 
+# ── Modelo de comportamiento entrenado (YOLOv8-Pose + Random Forest) ──────────
+# Clasifica ventanas de keypoints como Normal/Sospechoso; su salida entra al CAIEE
+# como una señal de peso alto. Desactivado por defecto hasta desplegar el .pkl y
+# validar el costo de CPU en la VM. Se corre cada BEHAVIOR_RUN_EVERY frames.
+BEHAVIOR_MODEL_ENABLED: bool = os.getenv("BEHAVIOR_MODEL_ENABLED", "false").lower() in ("1", "true", "yes")
+BEHAVIOR_MODEL_PATH: str = os.getenv("BEHAVIOR_MODEL_PATH",
+    str(Path(__file__).parent / "models" / "behavior_rf_binary.pkl"))
+BEHAVIOR_MODEL_META: str = os.getenv("BEHAVIOR_MODEL_META",
+    str(Path(__file__).parent / "models" / "behavior_rf_binary_meta.json"))
+BEHAVIOR_POSE_MODEL: str = os.getenv("BEHAVIOR_POSE_MODEL", "yolov8n-pose.pt")
+BEHAVIOR_RUN_EVERY: int = int(os.getenv("BEHAVIOR_RUN_EVERY", "3"))
+# Umbral de probabilidad para considerar "Sospechoso".
+BEHAVIOR_SUSPICIOUS_THRESHOLD: float = float(os.getenv("BEHAVIOR_SUSPICIOUS_THRESHOLD", "0.6"))
+
 # Objects kept in the annotated view + status (COCO class names). Everything else
 # (furniture, appliances, vehicles, etc.) is dropped so YOLO misclassifications
 # like door→refrigerator or bench don't clutter the view. persons/weapons/faces
