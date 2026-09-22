@@ -200,6 +200,13 @@ def ingest_event(
             timeout=10,
         )
         resp.raise_for_status()
+        # 204 = el backend descartó el evento a propósito (la monitorización del
+        # hogar está en pausa). No es un error y no trae cuerpo: intentar leerlo
+        # como JSON llenaba el log de "Expecting value: line 1 column 1".
+        if resp.status_code == 204 or not resp.content:
+            logger.info("Evento %s descartado por el backend (monitorización en pausa)",
+                        event_type)
+            return None
         logger.info("Event ingested: %s | risk=%s | conf=%.2f | cam=%s",
                     event_type, risk_level, confidence_score, camera_name or camera_id)
         return resp.json()
