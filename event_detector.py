@@ -65,18 +65,70 @@ def _prune_old_snapshots() -> None:
 
 
 def _draw_detections(img: np.ndarray, draw: dict | None) -> None:
-    """Draw the boxes that triggered/were present in the event onto [img]."""
+    """
+    Dibuja sobre [img] las detecciones del momento del evento.
+
+    Para las personas se usan las cajas YA ETIQUETADAS que produjo el detector
+    (nombre reconocido / "Desconocido" / riesgo con su puntaje, cada una con su
+    color). Antes se redibujaban las cajas crudas de YOLO con un genérico
+    "person 89%" en gris claro: sobre una imagen luminosa apenas se veían y, más
+    importante, no explicaban por qué se había generado la alerta.
+    """
     if not draw:
         return
     for o in draw.get("objects", []):
-        _draw_box(img, o["xyxy"], _COLOR_OBJECT, f"{o['name']} {o['conf']*100:.0f}%")
-    for p in draw.get("persons", []):
-        _draw_box(img, p["xyxy"], _COLOR_PERSON, f"person {p['conf']*100:.0f}%")
+        _draw_box(img, o["xyxy"], _COLOR_OBJECT, f"{o['name']} {o['conf']*100:.0f}%", thick=3)
+
+    etiquetadas = draw.get("labeled") or []
+    if etiquetadas:
+        for p in etiquetadas:
+            _draw_box(img, p["xyxy"], tuple(p["color"]), p["text"], thick=3)
+    else:
+        # Respaldo: cuadros anteriores a esta versión, o personas detectadas sin
+        # llegar a evaluarse (demasiado lejanas o de baja confianza).
+        for p in draw.get("persons", []):
+            _draw_box(img, p["xyxy"], _COLOR_PERSON, f"persona {p['conf']*100:.0f}%", thick=3)
+
     for f in draw.get("faces", []):
         col = _COLOR_FACE_KNOWN if f.get("known") else _COLOR_FACE_UNKNOWN
         _draw_box(img, f["box"], col, f.get("name", "?"))
     for w in draw.get("weapons", []):  # weapons last/on top, thicker
-        _draw_box(img, w["xyxy"], _COLOR_WEAPON, f"{w['name']} {w['conf']*100:.0f}%", thick=3)
+        _draw_box(img, w["xyxy"], _COLOR_WEAPON, f"{w['name']} {w['conf']*100:.0f}%", thick=4)
+
+
+# Nombre en español de cada tipo de evento, para el título de la captura. Es el
+# mismo vocabulario que usan el backend y la app; aquí va sin tildes a propósito,
+# porque las fuentes Hershey de OpenCV no saben dibujarlas (salía "C??mara").
+_EVENT_ES = {
+    "FaceRecognized": "Acceso reconocido",
+    "UnknownFace": "Persona desconocida",
+    "LowConfidenceFace": "Deteccion de baja confianza",
+    "RecurrentUnknownFace": "Visitante desconocido recurrente",
+    "ForcedAccessAttempt": "Intento de acceso forzado",
+    "Tailgating": "Merodeo",
+    "Climbing": "Escalamiento",
+    "Burglary": "Allanamiento",
+    "PhysicalAggression": "Agresion fisica",
+    "Assault": "Asalto",
+    "Abuse": "Abuso",
+    "Arrest": "Arresto",
+    "Stealing": "Hurto",
+    "Shoplifting": "Hurto en tienda",
+    "Vandalism": "Vandalismo",
+    "Robbery": "Robo a mano armada",
+    "Arson": "Incendio provocado",
+    "Explosion": "Explosion",
+    "Roadaccidents": "Accidente de transito",
+    "WeaponDetected": "Arma detectada",
+    "SuspiciousIntent": "Riesgo de intrusion",
+}
+
+_ACENTOS = str.maketrans("áéíóúüñÁÉÍÓÚÜÑ¿¡", "aeiouunAEIOUUN??")
+
+
+def _ascii(texto: str) -> str:
+    """Texto dibujable por OpenCV: sus fuentes no tienen tildes ni eñes."""
+    return texto.translate(_ACENTOS).encode("ascii", "ignore").decode()
 
 
 def capture_event_snapshot(frame_bgr: np.ndarray, camera_name: str,
@@ -92,9 +144,9 @@ def capture_event_snapshot(frame_bgr: np.ndarray, camera_name: str,
         # Detection rectangles first, then the caption bar on top.
         _draw_detections(img, draw)
         ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        caption = f"{ts}  |  {camera_name}"
+        caption = f"{ts}  |  {_ascii(camera_name)}"
         if label:
-            caption += f"  |  {label}"
+            caption += f"  |  {_ascii(_EVENT_ES.get(label, label))}"
         cv2.rectangle(img, (0, 0), (w, 30), (0, 0, 0), -1)
         cv2.putText(img, caption, (10, 21), cv2.FONT_HERSHEY_SIMPLEX, 0.55,
                     (255, 255, 255), 1, cv2.LINE_AA)
@@ -115,6 +167,59 @@ def capture_event_snapshot(frame_bgr: np.ndarray, camera_name: str,
         return f"{config.EVENT_SNAPSHOT_BASE_URL}/{name}"
     except Exception as e:
         logger.warning("Failed to save event snapshot: %s", e)
+        return None
+
+
+_CLIP_WIDTH = 640  # ancho del clip del evento: evidencia legible sin gastar RAM
+
+
+def build_annotated_clip(frames: list, fps: float) -> str | None:
+    """
+    Arma el clip del evento con los cuadros YA ANOTADOS y lo sube a R2.
+
+    Se usa en lugar de grabar del RTSP porque aquel clip era el video crudo de la
+    cámara: sin recuadros no se veía por qué había saltado la alerta. Estos
+    cuadros son los mismos que muestra la vista de IA, así que el clip enseña a
+    quién detectó, con qué nombre y con qué nivel de riesgo, e incluye los
+    segundos PREVIOS al evento, que es justo lo que explica la escalada.
+    """
+    import subprocess
+
+    import r2_client
+
+    if not frames:
+        return None
+    try:
+        h, w = frames[0].shape[:2]
+        name = f"{datetime.now():%Y%m%d}_{uuid.uuid4().hex[:12]}.mp4"
+        _ensure_snapshot_dir()
+        path = os.path.join(config.EVENT_SNAPSHOT_DIR, name)
+        cmd = [
+            "ffmpeg", "-y", "-f", "rawvideo", "-pix_fmt", "bgr24",
+            "-s", f"{w}x{h}", "-r", f"{max(1.0, fps):.2f}", "-i", "pipe:0",
+            "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart", path,
+        ]
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for f in frames:
+            if f.shape[:2] != (h, w):
+                f = cv2.resize(f, (w, h), interpolation=cv2.INTER_AREA)
+            proc.stdin.write(f.tobytes())
+        proc.stdin.close()
+        proc.wait(timeout=60)
+
+        if not os.path.exists(path) or os.path.getsize(path) < 1024:
+            logger.warning("El clip anotado no produjo un archivo utilizable")
+            return None
+        url = r2_client.upload_file(path, f"clips/{name}", "video/mp4")
+        try:
+            os.remove(path)  # R2 es la fuente de verdad
+        except OSError:
+            pass
+        return url
+    except Exception as e:
+        logger.warning("No se pudo construir/subir el clip anotado: %s", e)
         return None
 
 
@@ -171,9 +276,20 @@ _ALERT_TOGGLE_EVENTS: dict[str, set[str]] = {
 
 
 def disabled_event_types(alert_config: dict | None) -> set[str]:
-    """Event types the household has turned OFF. None/empty → suppress nothing."""
+    """
+    Tipos de evento que el hogar tiene APAGADOS. None/vacío → no se suprime nada.
+
+    Se prefiere la lista por tipo (`disabledEventTypes`), que es la que maneja la
+    app y permite apagar cada tipo por separado. Los cinco interruptores por
+    grupos quedan como respaldo para un backend antiguo que aún no la envíe.
+    """
     if not alert_config:
         return set()
+
+    por_tipo = alert_config.get("disabledEventTypes")
+    if isinstance(por_tipo, list):
+        return {str(t) for t in por_tipo if t}
+
     disabled: set[str] = set()
     for toggle, events in _ALERT_TOGGLE_EVENTS.items():
         if alert_config.get(toggle, True) is False:
@@ -283,6 +399,7 @@ def _draw_box(img, xyxy, color, label, thick=2):
     x1, y1, x2, y2 = [int(v) for v in xyxy]
     cv2.rectangle(img, (x1, y1), (x2, y2), color, thick)
     if label:
+        label = _ascii(label)  # las fuentes de OpenCV no dibujan tildes ni eñes
         (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
         ly = max(0, y1 - th - 6)
         cv2.rectangle(img, (x1, ly), (x1 + tw + 6, ly + th + 6), color, -1)
@@ -890,6 +1007,12 @@ class EventDetector:
         # Latest detections, kept so an event snapshot can be drawn with the boxes
         # that triggered it (persons/weapons/objects/faces).
         self.last_draw: dict | None = None
+        # Cuadros anotados recientes con los que se arma el clip del evento. El
+        # clip se grababa del RTSP con ffmpeg, así que era video crudo de la
+        # cámara: nunca podía llevar recuadros y no explicaba la alerta.
+        self._clip_buffer: deque | None = (
+            deque(maxlen=max(4, int(config.EVENT_CLIP_SECONDS / max(0.05, config.FRAME_INTERVAL_SECONDS))))
+            if config.EVENT_CLIP_SECONDS > 0 else None)
 
         logger.info(
             "[%s] Pipeline ready — Activity:%s  YOLO:%s  Face:%s  Behavior:ON",
@@ -974,9 +1097,14 @@ class EventDetector:
             else:
                 person_labels[i] = ("Identificando...", _COLOR_PERSON)
 
-        # Keep the current detections for event snapshots (drawn with boxes).
+        # Detecciones del cuadro actual, para dibujarlas en la captura del evento.
+        # Se guardan las cajas YA ETIQUETADAS (nombre / "Desconocido" / riesgo con
+        # su color), no las crudas: antes la captura salía con un "person 89%" gris
+        # que no explicaba por qué había saltado la alerta. Se rellena más abajo,
+        # cuando ya se conoce el riesgo de cada persona.
         self.last_draw = {
-            "persons": persons, "weapons": weapons, "objects": objects, "faces": faces,
+            "persons": persons, "weapons": weapons, "objects": objects,
+            "faces": faces, "labeled": [],
         }
 
         # ── Behavior fusion ───────────────────────────────────────────────────
@@ -1051,6 +1179,14 @@ class EventDetector:
             elif st == "watch":
                 person_labels[i] = (f"{base} ?", _COLOR_RISK_WATCH)
 
+        # Cajas ya etiquetadas para la captura del evento: mismo texto y mismo
+        # color que ve el usuario en la vista de IA. Se guardan aquí, después de
+        # aplicar el riesgo, porque es lo que explica POR QUÉ saltó la alerta.
+        self.last_draw["labeled"] = [
+            {"xyxy": p["xyxy"], "text": person_labels[i][0], "color": person_labels[i][1]}
+            for i, p in enumerate(event_persons) if i in person_labels
+        ]
+
         overall_suspicious = bool(
             weapons or armed
             or self._tracker.any_unknown(now)
@@ -1068,42 +1204,59 @@ class EventDetector:
             "intent": {"state": intent_state, "score": round(intent_score)},
         })
 
-        # ── Draw the annotated frame only when someone is watching ────────────
-        if watched:
-            annotated = frame.copy()
-            # Dibuja TODAS las personas detectadas por YOLO (no solo las "confiables"),
-            # para que la vista de IA muestre las cajas aunque estén lejos / de baja
-            # confianza. Las confiables llevan su etiqueta de identidad (track); el
-            # resto una caja genérica con su % de confianza.
-            _label_by_person = {}
-            for i, p in enumerate(event_persons):
-                _label_by_person[id(p)] = person_labels.get(i, ("persona", _COLOR_PERSON))
-            # Dedup por IoU: YOLO a veces devuelve 2-3 cajas solapadas sobre la
-            # misma persona (sobre todo si se mueve). Nos quedamos con la de mayor
-            # confianza y descartamos las que se solapan >0.55 con una ya dibujada.
-            _to_draw = []
-            for p in sorted(persons, key=lambda b: b.get("conf", 0), reverse=True):
-                if any(_iou(p["xyxy"], q["xyxy"]) > 0.55 for q in _to_draw):
-                    continue
-                _to_draw.append(p)
-            for p in _to_draw:
-                text, col = _label_by_person.get(
-                    id(p), (f"persona {p['conf']*100:.0f}%", _COLOR_PERSON))
-                _draw_box(annotated, p["xyxy"], col, text)
-            for o in objects:
-                _draw_box(annotated, o["xyxy"], _COLOR_OBJECT, f"{o['name']} {o['conf']*100:.0f}%")
-            for w in weapons:  # weapons last so their red box sits on top
-                _draw_box(annotated, w["xyxy"], _COLOR_WEAPON, f"{w['name']} {w['conf']*100:.0f}%", thick=3)
-            for f in faces:
-                col = _COLOR_FACE_KNOWN if f["known"] else _COLOR_FACE_UNKNOWN
-                _draw_box(annotated, f["box"], col, f["name"], thick=2)
-            _draw_alerts(annotated, alerts)
+        # ── Cuadro anotado ────────────────────────────────────────────────────
+        # Se construye SIEMPRE, no solo cuando alguien mira: además de la vista
+        # en vivo alimenta el búfer con el que se arma el clip del evento, y ese
+        # clip debe llevar los recuadros aunque nadie estuviera mirando. Dibujar
+        # es barato; lo caro (codificar JPEG) sigue siendo solo para quien mira.
+        annotated = frame.copy()
+        # Dibuja TODAS las personas detectadas por YOLO (no solo las "confiables"),
+        # para que la vista de IA muestre las cajas aunque estén lejos / de baja
+        # confianza. Las confiables llevan su etiqueta de identidad (track); el
+        # resto una caja genérica con su % de confianza.
+        _label_by_person = {}
+        for i, p in enumerate(event_persons):
+            _label_by_person[id(p)] = person_labels.get(i, ("persona", _COLOR_PERSON))
+        # Dedup por IoU: YOLO a veces devuelve 2-3 cajas solapadas sobre la
+        # misma persona (sobre todo si se mueve). Nos quedamos con la de mayor
+        # confianza y descartamos las que se solapan >0.55 con una ya dibujada.
+        _to_draw = []
+        for p in sorted(persons, key=lambda b: b.get("conf", 0), reverse=True):
+            if any(_iou(p["xyxy"], q["xyxy"]) > 0.55 for q in _to_draw):
+                continue
+            _to_draw.append(p)
+        for p in _to_draw:
+            text, col = _label_by_person.get(
+                id(p), (f"persona {p['conf']*100:.0f}%", _COLOR_PERSON))
+            _draw_box(annotated, p["xyxy"], col, text)
+        for o in objects:
+            _draw_box(annotated, o["xyxy"], _COLOR_OBJECT, f"{o['name']} {o['conf']*100:.0f}%")
+        for w in weapons:  # weapons last so their red box sits on top
+            _draw_box(annotated, w["xyxy"], _COLOR_WEAPON, f"{w['name']} {w['conf']*100:.0f}%", thick=3)
+        for f in faces:
+            col = _COLOR_FACE_KNOWN if f["known"] else _COLOR_FACE_UNKNOWN
+            _draw_box(annotated, f["box"], col, f["name"], thick=2)
+        _draw_alerts(annotated, alerts)
+
+        # Búfer rodante para el clip del evento (reducido: es evidencia, no cine).
+        if self._clip_buffer is not None:
             try:
-                h, w = annotated.shape[:2]
+                ah, aw = annotated.shape[:2]
+                self._clip_buffer.append(
+                    cv2.resize(annotated, (_CLIP_WIDTH, int(ah * _CLIP_WIDTH / aw)),
+                               interpolation=cv2.INTER_AREA)
+                    if aw > _CLIP_WIDTH else annotated.copy())
+            except Exception:
+                pass
+
+        if watched:
+            try:
+                view = annotated
+                h, w = view.shape[:2]
                 if w > 800:
-                    annotated = cv2.resize(annotated, (800, int(h * 800 / w)),
-                                           interpolation=cv2.INTER_AREA)
-                _, buf = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 60])
+                    view = cv2.resize(view, (800, int(h * 800 / w)),
+                                      interpolation=cv2.INTER_AREA)
+                _, buf = cv2.imencode(".jpg", view, [cv2.IMWRITE_JPEG_QUALITY, 60])
                 _fs.store_frame(self.camera_id, buf.tobytes())
             except Exception:
                 pass
@@ -1128,6 +1281,10 @@ class EventDetector:
             )
 
         return events
+
+    def clip_frames(self) -> list:
+        """Copia de los cuadros anotados recientes, para armar el clip del evento."""
+        return list(self._clip_buffer) if self._clip_buffer else []
 
     def _in_cooldown(self, key: str) -> bool:
         last = self._last_event_time.get(key, 0.0)

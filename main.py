@@ -33,9 +33,9 @@ from api_client import (
 )
 from event_detector import (
     EventDetector,
+    build_annotated_clip,
     capture_event_snapshot,
     disabled_event_types,
-    record_event_clip,
 )
 from stream_reader import StreamReader
 
@@ -168,9 +168,13 @@ class CameraWorker(threading.Thread):
                         # Record a short clip in the background and attach it to the
                         # event once uploaded (so the live alert isn't delayed).
                         if first_event_id and config.EVENT_CLIP_SECONDS > 0:
+                            # Se copia el búfer AHORA (el worker sigue añadiendo
+                            # cuadros) y se codifica en segundo plano, para no
+                            # retrasar la alerta.
+                            frames = list(detector.clip_frames())
                             threading.Thread(
-                                target=_record_and_attach_clip,
-                                args=(rtsp_url, first_event_id),
+                                target=_build_and_attach_clip,
+                                args=(frames, first_event_id),
                                 daemon=True,
                                 name=f"clip-{first_event_id[:8]}",
                             ).start()
@@ -272,9 +276,10 @@ def main():
         logger.info("Goodbye.")
 
 
-def _record_and_attach_clip(rtsp_url: str, event_id: str) -> None:
-    """Background: record a short clip, upload to R2, attach its URL to the event."""
-    url = record_event_clip(rtsp_url, config.EVENT_CLIP_SECONDS)
+def _build_and_attach_clip(frames: list, event_id: str) -> None:
+    """Segundo plano: arma el clip con los cuadros anotados, lo sube a R2 y lo
+    adjunta al evento."""
+    url = build_annotated_clip(frames, fps=1.0 / max(0.05, config.FRAME_INTERVAL_SECONDS))
     if url:
         attach_clip(event_id, url)
 
