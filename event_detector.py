@@ -342,21 +342,28 @@ _COLOR_OK = (90, 200, 90)
 _COLOR_WARN = (40, 40, 235)
 
 # ── Activity model output → backend EventType mapping ────────────────────────
+# Clases del modelo de actividad (UCF-Crime) -> evento que publica el sistema.
+#
+# El modelo distingue 13 clases, pero el producto es una camara de vivienda: que
+# aparezca "Explosion" o "Accidente de transito" en la lista de alertas no lo
+# sostiene nadie delante de un evaluador. Aqui se publica solo lo defendible, y
+# las clases vecinas se doblan sobre el evento que si tiene sentido:
+# Shoplifting -> Hurto, y Assault/Abuse -> Agresion fisica.
 _ACTIVITY_EVENT_MAP = {
     "Vandalism":     ("ForcedAccessAttempt", "High"),
     "Stealing":      ("Stealing",            "High"),
-    "Shoplifting":   ("Shoplifting",         "Medium"),
+    "Shoplifting":   ("Stealing",            "Medium"),
     "Shooting":      ("PhysicalAggression",  "Critical"),
     "Robbery":       ("Robbery",             "Critical"),
-    "Roadaccidents": ("Roadaccidents",       "High"),
     "Fighting":      ("PhysicalAggression",  "High"),
-    "Explosion":     ("Explosion",           "Critical"),
     "Burglary":      ("Burglary",            "Critical"),
-    "Assault":       ("Assault",             "Critical"),
-    "Arson":         ("Arson",               "Critical"),
-    "Arrest":        ("Arrest",              "Medium"),
-    "Abuse":         ("Abuse",               "High"),
+    "Assault":       ("PhysicalAggression",  "Critical"),
+    "Abuse":         ("PhysicalAggression",  "High"),
 }
+
+# Clases que el modelo puede sacar pero que no se publican: en una puerta de
+# casa son ruido, y no hay forma honesta de demostrarlas.
+_ACTIVITY_IGNORED = {"Explosion", "Arson", "Arrest", "Roadaccidents"}
 
 # ── Risk level ranking (for combining multiple signals) ───────────────────────
 _RISK_RANK = {"None": 0, "Low": 1, "Medium": 2, "High": 3, "Critical": 4}
@@ -541,7 +548,15 @@ class ActivityDetector:
                             self._streak, config.ACTIVITY_EVENT_MIN_STREAK)
             return None
 
-        event_type, risk_level = _ACTIVITY_EVENT_MAP.get(raw_name, ("PhysicalAggression", "High"))
+        if raw_name in _ACTIVITY_IGNORED:
+            logger.info("  -> descartado: '%s' no se publica en una camara de vivienda", raw_name)
+            return None
+
+        mapeado = _ACTIVITY_EVENT_MAP.get(raw_name)
+        if mapeado is None:
+            logger.info("  -> descartado: clase '%s' sin evento asociado", raw_name)
+            return None
+        event_type, risk_level = mapeado
 
         return {
             "event_type": event_type,
