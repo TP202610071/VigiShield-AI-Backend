@@ -13,6 +13,7 @@ import os
 import cv2
 import logging
 import time
+import zlib
 from typing import Generator
 
 # Force TCP transport BEFORE any VideoCapture is created.
@@ -31,6 +32,11 @@ class StreamReader:
     - MediaMTX re-exposure: rtsp://localhost:8554/{stream-key}  (preferred)
     - Direct camera:        rtsp://user:pass@192.168.1.x:554/path  (fallback)
     """
+
+    # Una cámara real nunca entrega el mismo cuadro, bit a bit, durante tanto
+    # tiempo: el ruido del sensor lo impide. Si pasa, OpenCV dejó de decodificar
+    # (p. ej. el stream cambió de resolución a mitad) y repite el último cuadro.
+    FROZEN_SECONDS = 8.0
 
     def __init__(self, rtsp_url: str, reconnect_delay: int = 5, max_reconnects: int = 10):
         self.rtsp_url = rtsp_url
@@ -69,6 +75,8 @@ class StreamReader:
         """
         reconnect_count = 0
         consecutive_grab_failures = 0
+        last_signature = None
+        same_since = 0.0
 
         while True:
             # ── Re-connect if needed ──────────────────────────────────────────
@@ -108,6 +116,21 @@ class StreamReader:
             if got_frame and self._cap and self._cap.isOpened():
                 ret, frame = self._cap.retrieve()
                 if ret and frame is not None:
+                    # Cuadro congelado: el teléfono (WebRTC) sube o baja la
+                    # resolución según la red y OpenCV no sigue el cambio: se
+                    # queda con el último cuadro bueno y la vista de IA se
+                    # congela. Reconectar vuelve a leer con el tamaño nuevo.
+                    signature = zlib.crc32(frame[::8, ::8].tobytes())
+                    now = time.monotonic()
+                    if signature != last_signature:
+                        last_signature, same_since = signature, now
+                    elif now - same_since >= self.FROZEN_SECONDS:
+                        logger.warning("Stream frozen for %.0fs (same frame; resolution change?) — "
+                                       "reconnecting %s", now - same_since, self._sanitize_url())
+                        self.disconnect()
+                        last_signature = None
+                        self.connect()
+                        continue
                     reconnect_count = 0
                     yield frame
 
