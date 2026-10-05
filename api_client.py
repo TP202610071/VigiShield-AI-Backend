@@ -25,7 +25,12 @@ def get_all_cameras() -> list[dict]:
         )
         resp.raise_for_status()
         cameras = resp.json()
-        configured = [c for c in cameras if c.get("rtspUrl")]
+        # Vale cualquiera de las dos URLs: main.py prefiere la de MediaMTX y usa
+        # la directa como respaldo. Filtrar solo por rtspUrl descartaba las
+        # camaras del telefono, que no tienen IP y por tanto no tienen URL
+        # directa: publicaban por WebRTC y nadie las leia.
+        configured = [c for c in cameras
+                      if c.get("rtspUrl") or c.get("mediaMtxRtspUrl")]
         logger.info("Fetched %d configured camera(s) from backend", len(configured))
         return configured
     except requests.exceptions.ConnectionError:
