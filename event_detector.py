@@ -1022,6 +1022,14 @@ class EventDetector:
         # Latest detections, kept so an event snapshot can be drawn with the boxes
         # that triggered it (persons/weapons/objects/faces).
         self.last_draw: dict | None = None
+        # Mejor evidencia reciente: el ultimo cuadro en el que SI habia personas
+        # etiquetadas, con sus cajas.
+        #
+        # La captura se tomaba del cuadro en que salta el evento, pero el riesgo
+        # se acumula en el tiempo: cuando por fin dispara, la persona puede
+        # haberse ido ya. Salia una foto vacia y sin recuadros mientras el clip
+        # -que si tiene pre-grabacion- mostraba el incidente entero.
+        self._evidencia: tuple[float, "np.ndarray", dict] | None = None
         # Cuadros anotados recientes con los que se arma el clip del evento. El
         # clip se grababa del RTSP con ffmpeg, así que era video crudo de la
         # cámara: nunca podía llevar recuadros y no explicaba la alerta.
@@ -1202,6 +1210,11 @@ class EventDetector:
             for i, p in enumerate(event_persons) if i in person_labels
         ]
 
+        # Se recuerda este cuadro si tiene a alguien etiquetado: es lo que
+        # explica la alerta cuando esta salte unos segundos despues.
+        if self.last_draw["labeled"]:
+            self._evidencia = (now, frame.copy(), dict(self.last_draw))
+
         overall_suspicious = bool(
             weapons or armed
             or self._tracker.any_unknown(now)
@@ -1300,6 +1313,25 @@ class EventDetector:
     def clip_frames(self) -> list:
         """Copia de los cuadros anotados recientes, para armar el clip del evento."""
         return list(self._clip_buffer) if self._clip_buffer else []
+
+    def evidencia_del_evento(self, frame_actual):
+        """
+        Cuadro con el que ilustrar el evento, y sus cajas.
+
+        Devuelve el ultimo cuadro reciente en el que habia alguien etiquetado;
+        si no hay ninguno, el actual. El riesgo se acumula durante segundos, asi
+        que el cuadro en que SALTA la alerta suele estar ya vacio: la foto salia
+        sin nada que ver mientras el clip mostraba el incidente completo.
+
+        La ventana es la misma que la del clip: mas atras ya no corresponde a lo
+        que el usuario va a ver reproducido.
+        """
+        if self._evidencia is None:
+            return frame_actual, self.last_draw
+        momento, cuadro, draw = self._evidencia
+        if time.monotonic() - momento > max(2.0, float(config.EVENT_CLIP_SECONDS)):
+            return frame_actual, self.last_draw
+        return cuadro, draw
 
     def _in_cooldown(self, key: str) -> bool:
         last = self._last_event_time.get(key, 0.0)

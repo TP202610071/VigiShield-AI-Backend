@@ -154,9 +154,14 @@ class CameraWorker(threading.Thread):
 
                         # One snapshot of the moment (with detection boxes drawn),
                         # shared by every event in this batch.
+                        # No se usa el cuadro de ESTE instante: cuando el riesgo
+                        # acumulado hace saltar la alerta, la persona suele haber
+                        # salido ya y la foto quedaba vacia. Se pide el ultimo
+                        # cuadro reciente con detecciones etiquetadas.
+                        cuadro_evidencia, draw_evidencia = detector.evidencia_del_evento(frame)
                         snap_url = capture_event_snapshot(
-                            frame, camera_name,
-                            label=events[0]["event_type"], draw=detector.last_draw)
+                            cuadro_evidencia, camera_name,
+                            label=events[0]["event_type"], draw=draw_evidencia)
                         first_event_id = None
                         for ev in events:
                             if snap_url:
