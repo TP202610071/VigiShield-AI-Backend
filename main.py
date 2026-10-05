@@ -123,14 +123,20 @@ class CameraWorker(threading.Thread):
         disabled_types: set[str] = set()
         last_alert_fetch = 0.0
 
+        # Espera creciente entre reintentos (3, 6, 12, 15 s). Con 15 s fijos, un
+        # celular que se reconecta en dos segundos (por ejemplo al girarlo)
+        # dejaba la cámara sin analizar trece segundos más.
+        espera = 3
         while not self._stop_event.is_set():
             try:
                 with StreamReader(rtsp_url) as reader:
                     if not reader._cap or not reader._cap.isOpened():
-                        logger.warning("[%s] Stream not available. Retry in 15s...", camera_name)
-                        self._stop_event.wait(15)
+                        logger.warning("[%s] Stream not available. Retry in %ds...", camera_name, espera)
+                        self._stop_event.wait(espera)
+                        espera = min(15, espera * 2)
                         continue
 
+                    espera = 3
                     logger.info("[%s] Stream connected. Processing every %.1fs.",
                                 camera_name, config.FRAME_INTERVAL_SECONDS)
 
