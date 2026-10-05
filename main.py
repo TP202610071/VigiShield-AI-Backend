@@ -34,6 +34,7 @@ from api_client import (
 from event_detector import (
     EventDetector,
     build_annotated_clip,
+    retime_frames,
     capture_event_snapshot,
     disabled_event_types,
 )
@@ -158,10 +159,13 @@ class CameraWorker(threading.Thread):
                         # acumulado hace saltar la alerta, la persona suele haber
                         # salido ya y la foto quedaba vacia. Se pide el ultimo
                         # cuadro reciente con detecciones etiquetadas.
-                        cuadro_evidencia, draw_evidencia = detector.evidencia_del_evento(frame)
+                        # Instante del evento = hora del cuadro que lo hizo saltar.
+                        momento_evento = detector.last_frame_time
+                        cuadro_evidencia, draw_evidencia, momento_foto = detector.evidencia_del_evento(frame)
                         snap_url = capture_event_snapshot(
                             cuadro_evidencia, camera_name,
-                            label=events[0]["event_type"], draw=draw_evidencia)
+                            label=events[0]["event_type"], draw=draw_evidencia,
+                            moment=momento_foto)
                         first_event_id = None
                         for ev in events:
                             if snap_url:
@@ -173,13 +177,13 @@ class CameraWorker(threading.Thread):
                         # Record a short clip in the background and attach it to the
                         # event once uploaded (so the live alert isn't delayed).
                         if first_event_id and config.EVENT_CLIP_SECONDS > 0:
-                            # Se copia el búfer AHORA (el worker sigue añadiendo
-                            # cuadros) y se codifica en segundo plano, para no
+                            # El hilo espera los segundos POSTERIORES (el worker
+                            # sigue llenando el búfer) y luego arma el clip con
+                            # la ventana [evento - PRE, evento + POST], para no
                             # retrasar la alerta.
-                            frames = list(detector.clip_frames())
                             threading.Thread(
                                 target=_build_and_attach_clip,
-                                args=(frames, first_event_id),
+                                args=(detector, momento_evento, first_event_id, self._stop_event),
                                 daemon=True,
                                 name=f"clip-{first_event_id[:8]}",
                             ).start()
@@ -281,10 +285,17 @@ def main():
         logger.info("Goodbye.")
 
 
-def _build_and_attach_clip(frames: list, event_id: str) -> None:
-    """Segundo plano: arma el clip con los cuadros anotados, lo sube a R2 y lo
-    adjunta al evento."""
-    url = build_annotated_clip(frames, fps=1.0 / max(0.05, config.FRAME_INTERVAL_SECONDS))
+def _build_and_attach_clip(detector, momento: float, event_id: str,
+                           stop: threading.Event) -> None:
+    """Segundo plano: espera a tener los segundos posteriores al evento, arma
+    el clip con los cuadros anotados de [momento - PRE, momento + POST], lo sube
+    a R2 y lo adjunta al evento."""
+    stop.wait(max(0.0, config.EVENT_CLIP_POST_SECONDS))
+    timed = detector.clip_frames(momento - config.EVENT_CLIP_PRE_SECONDS,
+                                 momento + config.EVENT_CLIP_POST_SECONDS)
+    fps = max(1.0, config.EVENT_CLIP_OUTPUT_FPS)
+    frames = retime_frames(timed, fps, event_time=momento)
+    url = build_annotated_clip(frames, fps=fps)
     if url:
         attach_clip(event_id, url)
 

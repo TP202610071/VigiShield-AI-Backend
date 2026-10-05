@@ -189,6 +189,14 @@ ALERT_CONFIG_REFRESH_SECONDS: int = int(os.getenv("ALERT_CONFIG_REFRESH_SECONDS"
 
 # Seconds of video to record from the camera when an event fires (0 = disabled).
 EVENT_CLIP_SECONDS: int = int(os.getenv("EVENT_CLIP_SECONDS", "6"))
+# Ventana del clip alrededor del instante del evento. Antes era solo lo
+# anterior (EVENT_CLIP_SECONDS), así que el clip se cortaba justo cuando
+# saltaba la alerta; con riesgo acumulado, además, el origen quedaba fuera.
+EVENT_CLIP_PRE_SECONDS: float = float(os.getenv("EVENT_CLIP_PRE_SECONDS", "8"))
+EVENT_CLIP_POST_SECONDS: float = float(os.getenv("EVENT_CLIP_POST_SECONDS", "4"))
+# Cadencia de salida del clip. Los cuadros se colocan según su hora real, así
+# que el video dura lo que duró la escena aunque el análisis vaya más lento.
+EVENT_CLIP_OUTPUT_FPS: float = float(os.getenv("EVENT_CLIP_OUTPUT_FPS", "8"))
 
 # ── Cloudflare R2 (S3-compatible) media storage ───────────────────────────────
 # Event snapshots and clips are uploaded here and served from the public domain.

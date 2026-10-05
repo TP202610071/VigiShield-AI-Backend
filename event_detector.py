@@ -17,6 +17,7 @@ app can show a live "suspicious" banner without reading pixels.
 import json
 import logging
 import os
+import threading
 import time
 import uuid
 from collections import deque
@@ -132,7 +133,8 @@ def _ascii(texto: str) -> str:
 
 
 def capture_event_snapshot(frame_bgr: np.ndarray, camera_name: str,
-                           label: str = "", draw: dict | None = None) -> str | None:
+                           label: str = "", draw: dict | None = None,
+                           moment: float | None = None) -> str | None:
     """Build a captioned JPEG of the event moment (with detection rectangles),
     upload it to R2 and return its public URL. Falls back to local serving
     (frame server /ai/event) when R2 isn't configured."""
@@ -143,7 +145,9 @@ def capture_event_snapshot(frame_bgr: np.ndarray, camera_name: str,
         h, w = img.shape[:2]
         # Detection rectangles first, then the caption bar on top.
         _draw_detections(img, draw)
-        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # La hora del CUADRO, no la de subida: la foto puede ser de unos
+        # segundos antes de que saltara la alerta.
+        ts = (datetime.fromtimestamp(moment) if moment else datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
         caption = f"{ts}  |  {_ascii(camera_name)}"
         if label:
             caption += f"  |  {_ascii(_EVENT_ES.get(label, label))}"
@@ -173,6 +177,42 @@ def capture_event_snapshot(frame_bgr: np.ndarray, camera_name: str,
 _CLIP_WIDTH = 640  # ancho del clip del evento: evidencia legible sin gastar RAM
 
 
+def retime_frames(timed: list, fps: float, event_time: float | None = None) -> list:
+    """
+    Convierte cuadros con su hora real [(t, img)] en una secuencia a cadencia
+    fija: en cada instante de salida va el último cuadro analizado hasta ese
+    momento.
+
+    Antes el clip se codificaba suponiendo 1/FRAME_INTERVAL_SECONDS cuadros por
+    segundo, pero el análisis va más lento cuando hay varias cámaras: el video
+    salía acelerado y el instante del evento no caía donde debía.
+
+    Cada cuadro lleva su hora, y desde el instante del evento un borde rojo,
+    para que se vea en qué momento saltó la alerta.
+    """
+    timed = sorted((p for p in timed if p is not None), key=lambda p: p[0])
+    if not timed:
+        return []
+    t0, t1 = timed[0][0], timed[-1][0]
+    n = max(1, int((t1 - t0) * fps) + 1)
+    out, j = [], 0
+    for k in range(n):
+        t = t0 + k / fps
+        while j + 1 < len(timed) and timed[j + 1][0] <= t:
+            j += 1
+        img = timed[j][1].copy()
+        h, w = img.shape[:2]
+        if event_time is not None and t >= event_time:
+            cv2.rectangle(img, (0, 0), (w - 1, h - 1), (0, 0, 255), 4)
+        stamp = datetime.fromtimestamp(t).strftime("%H:%M:%S")
+        cv2.putText(img, stamp, (8, h - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (0, 0, 0), 3, cv2.LINE_AA)
+        cv2.putText(img, stamp, (8, h - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    (255, 255, 255), 1, cv2.LINE_AA)
+        out.append(img)
+    return out
+
+
 def build_annotated_clip(frames: list, fps: float) -> str | None:
     """
     Arma el clip del evento con los cuadros YA ANOTADOS y lo sube a R2.
@@ -182,6 +222,8 @@ def build_annotated_clip(frames: list, fps: float) -> str | None:
     cuadros son los mismos que muestra la vista de IA, así que el clip enseña a
     quién detectó, con qué nombre y con qué nivel de riesgo, e incluye los
     segundos PREVIOS al evento, que es justo lo que explica la escalada.
+
+    `frames` ya debe venir a cadencia fija `fps` (ver retime_frames).
     """
     import subprocess
 
@@ -339,6 +381,33 @@ _COLOR_RISK_WATCH = (60, 200, 250)
 _COLOR_RISK_SUSPECT = (40, 140, 255)   # naranja
 _COLOR_RISK_HIGH = (40, 40, 235)       # rojo: riesgo confirmado
 _COLOR_OK = (90, 200, 90)
+
+
+def puntuar_evidencia(draw: dict | None, frame_h: int) -> float:
+    """Cuánto explica un cuadro la alerta: arma > cara desconocida > cara >
+    persona en riesgo, y a igualdad, la persona más grande (más cerca)."""
+    if not draw:
+        return 0.0
+    s = 0.0
+    if draw.get("weapons"):
+        s += 1000
+    faces = draw.get("faces") or []
+    if any(not f.get("known") for f in faces):
+        s += 300
+    elif faces:
+        s += 200
+    for p in draw.get("labeled") or []:
+        if p.get("color") == _COLOR_RISK_HIGH:
+            s += 100
+        elif p.get("color") == _COLOR_RISK_SUSPECT:
+            s += 50
+        else:
+            s += 10
+    alturas = [(p["xyxy"][3] - p["xyxy"][1]) / max(1, frame_h)
+               for p in draw.get("labeled") or [] if p.get("xyxy") is not None]
+    if alturas:
+        s += 50 * min(1.0, max(alturas))
+    return s
 _COLOR_WARN = (40, 40, 235)
 
 # ── Activity model output → backend EventType mapping ────────────────────────
@@ -1022,19 +1091,24 @@ class EventDetector:
         # Latest detections, kept so an event snapshot can be drawn with the boxes
         # that triggered it (persons/weapons/objects/faces).
         self.last_draw: dict | None = None
-        # Mejor evidencia reciente: el ultimo cuadro en el que SI habia personas
-        # etiquetadas, con sus cajas.
+        # Candidatos a foto del evento: cuadros recientes con alguien etiquetado,
+        # con su hora real y una puntuación de cuánto explican la alerta.
         #
         # La captura se tomaba del cuadro en que salta el evento, pero el riesgo
         # se acumula en el tiempo: cuando por fin dispara, la persona puede
-        # haberse ido ya. Salia una foto vacia y sin recuadros mientras el clip
-        # -que si tiene pre-grabacion- mostraba el incidente entero.
-        self._evidencia: tuple[float, "np.ndarray", dict] | None = None
-        # Cuadros anotados recientes con los que se arma el clip del evento. El
-        # clip se grababa del RTSP con ffmpeg, así que era video crudo de la
-        # cámara: nunca podía llevar recuadros y no explicaba la alerta.
+        # haberse ido ya. Luego se tomó el ÚLTIMO cuadro con alguien, que a
+        # menudo era una espalda saliendo de plano; ahora gana el más
+        # explicativo de la ventana (arma > cara desconocida > cara > riesgo).
+        ventana = config.EVENT_CLIP_PRE_SECONDS + config.EVENT_CLIP_POST_SECONDS + 2
+        self._evidencias: deque = deque(maxlen=20)
+        # Cuadros anotados recientes con su hora real [(t, img)], para armar el
+        # clip del evento. El clip se grababa del RTSP con ffmpeg, así que era
+        # video crudo de la cámara: nunca podía llevar recuadros. El hilo del
+        # clip lee este búfer mientras el detector escribe: de ahí el cerrojo.
+        self._clip_window = ventana
+        self._clip_lock = threading.Lock()
         self._clip_buffer: deque | None = (
-            deque(maxlen=max(4, int(config.EVENT_CLIP_SECONDS / max(0.05, config.FRAME_INTERVAL_SECONDS))))
+            deque(maxlen=max(8, int(ventana / max(0.05, config.FRAME_INTERVAL_SECONDS)) + 8))
             if config.EVENT_CLIP_SECONDS > 0 else None)
 
         logger.info(
@@ -1056,6 +1130,8 @@ class EventDetector:
         """Run all models on one frame; returns list of events to ingest."""
         import frame_server as _fs
         watched = _fs.is_watched(self.camera_id)
+        captured = time.time()  # hora real del cuadro: la de la foto y el clip
+        self.last_frame_time = captured
         candidates: list[dict] = []
 
         # ── YOLO (always — needed for alarms + behavior) ──────────────────────
@@ -1211,9 +1287,14 @@ class EventDetector:
         ]
 
         # Se recuerda este cuadro si tiene a alguien etiquetado: es lo que
-        # explica la alerta cuando esta salte unos segundos despues.
+        # explica la alerta cuando esta salte unos segundos despues. Como
+        # mucho uno por segundo salvo que mejore al anterior: cada cuadro a
+        # 1080p ocupa ~6 MB y la ventana es de varios segundos.
         if self.last_draw["labeled"]:
-            self._evidencia = (now, frame.copy(), dict(self.last_draw))
+            score = puntuar_evidencia(self.last_draw, frame.shape[0])
+            ultimo = self._evidencias[-1] if self._evidencias else None
+            if ultimo is None or captured - ultimo[0] >= 1.0 or score > ultimo[3]:
+                self._evidencias.append((captured, frame.copy(), dict(self.last_draw), score))
 
         overall_suspicious = bool(
             weapons or armed
@@ -1270,10 +1351,13 @@ class EventDetector:
         if self._clip_buffer is not None:
             try:
                 ah, aw = annotated.shape[:2]
-                self._clip_buffer.append(
-                    cv2.resize(annotated, (_CLIP_WIDTH, int(ah * _CLIP_WIDTH / aw)),
-                               interpolation=cv2.INTER_AREA)
-                    if aw > _CLIP_WIDTH else annotated.copy())
+                img = (cv2.resize(annotated, (_CLIP_WIDTH, int(ah * _CLIP_WIDTH / aw)),
+                                  interpolation=cv2.INTER_AREA)
+                       if aw > _CLIP_WIDTH else annotated.copy())
+                with self._clip_lock:
+                    self._clip_buffer.append((captured, img))
+                    while self._clip_buffer and captured - self._clip_buffer[0][0] > self._clip_window:
+                        self._clip_buffer.popleft()
             except Exception:
                 pass
 
@@ -1310,28 +1394,35 @@ class EventDetector:
 
         return events
 
-    def clip_frames(self) -> list:
-        """Copia de los cuadros anotados recientes, para armar el clip del evento."""
-        return list(self._clip_buffer) if self._clip_buffer else []
+    def clip_frames(self, desde: float | None = None, hasta: float | None = None) -> list:
+        """Copia [(t, img)] de los cuadros anotados entre `desde` y `hasta`
+        (hora real). Sin límites, todo el búfer."""
+        if not self._clip_buffer:
+            return []
+        with self._clip_lock:
+            cuadros = list(self._clip_buffer)
+        return [(t, img) for t, img in cuadros
+                if (desde is None or t >= desde) and (hasta is None or t <= hasta)]
 
     def evidencia_del_evento(self, frame_actual):
         """
-        Cuadro con el que ilustrar el evento, y sus cajas.
+        Cuadro con el que ilustrar el evento: (cuadro, cajas, hora real).
 
-        Devuelve el ultimo cuadro reciente en el que habia alguien etiquetado;
-        si no hay ninguno, el actual. El riesgo se acumula durante segundos, asi
-        que el cuadro en que SALTA la alerta suele estar ya vacio: la foto salia
-        sin nada que ver mientras el clip mostraba el incidente completo.
+        De los cuadros de la ventana previa del clip, el que más explica la
+        alerta (ver puntuar_evidencia); a igualdad, el más reciente. Si no hay
+        ninguno, el actual. El riesgo se acumula durante segundos, así que el
+        cuadro en que SALTA la alerta suele estar ya vacío.
 
-        La ventana es la misma que la del clip: mas atras ya no corresponde a lo
-        que el usuario va a ver reproducido.
+        La ventana es la misma que la parte previa del clip: más atrás ya no
+        corresponde a lo que el usuario va a ver reproducido.
         """
-        if self._evidencia is None:
-            return frame_actual, self.last_draw
-        momento, cuadro, draw = self._evidencia
-        if time.monotonic() - momento > max(2.0, float(config.EVENT_CLIP_SECONDS)):
-            return frame_actual, self.last_draw
-        return cuadro, draw
+        ahora = getattr(self, "last_frame_time", None) or time.time()
+        desde = ahora - max(2.0, config.EVENT_CLIP_PRE_SECONDS)
+        candidatos = [e for e in self._evidencias if e[0] >= desde]
+        if not candidatos:
+            return frame_actual, self.last_draw, ahora
+        momento, cuadro, draw, _ = max(candidatos, key=lambda e: (e[3], e[0]))
+        return cuadro, draw, momento
 
     def _in_cooldown(self, key: str) -> bool:
         last = self._last_event_time.get(key, 0.0)
