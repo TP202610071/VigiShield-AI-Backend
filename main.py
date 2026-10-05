@@ -124,9 +124,9 @@ class CameraWorker(threading.Thread):
         disabled_types: set[str] = set()
         last_alert_fetch = 0.0
 
-        # Espera creciente entre reintentos (3, 6, 12, 15 s). Con 15 s fijos, un
-        # celular que se reconecta en dos segundos (por ejemplo al girarlo)
-        # dejaba la cámara sin analizar trece segundos más.
+        # Espera creciente entre reintentos (3 y luego 6 s). Un celular que
+        # reinicia su transmisión al girarlo vuelve en dos segundos: con esperas
+        # de 15 s la vista de IA quedaba congelada mucho más que el corte real.
         espera = 3
         while not self._stop_event.is_set():
             try:
@@ -134,7 +134,7 @@ class CameraWorker(threading.Thread):
                     if not reader._cap or not reader._cap.isOpened():
                         logger.warning("[%s] Stream not available. Retry in %ds...", camera_name, espera)
                         self._stop_event.wait(espera)
-                        espera = min(15, espera * 2)
+                        espera = min(6, espera * 2)
                         continue
 
                     espera = 3
