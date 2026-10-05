@@ -130,6 +130,11 @@ _lock = threading.Lock()
 # annotating + JPEG-encoding frames for it.
 _ACTIVE_WINDOW_SECONDS = 6.0
 
+# Capturas crudas para el editor de zonas: la clave de transmisión es
+# alfanumérica, y como mucho dos ffmpeg a la vez para no robar CPU a la IA.
+_STREAM_KEY_RE = re.compile(r"^[A-Za-z0-9]{1,64}$")
+_snapshot_sem = threading.Semaphore(2)
+
 
 def store_frame(camera_id: str, jpeg_bytes: bytes) -> None:
     """Store the latest annotated JPEG frame for a camera (thread-safe)."""
@@ -219,6 +224,10 @@ class _FrameHandler(http.server.BaseHTTPRequestHandler):
                 self.send_error(404, "No frame available yet for this camera")
             return
 
+        if len(path) == 2 and path[0] == "snapshot":
+            self._snapshot(path[1])
+            return
+
         if len(path) == 2 and path[0] == "event":
             name = path[1]
             if not _SNAPSHOT_NAME_RE.match(name):
@@ -259,6 +268,46 @@ class _FrameHandler(http.server.BaseHTTPRequestHandler):
             return
 
         self.send_error(404, "Not found")
+
+    def _snapshot(self, stream_key: str):
+        """
+        Un cuadro CRUDO y actual del video de una cámara (sin anotar).
+
+        Es el fondo del editor de zonas. Antes se usaba el último cuadro
+        anotado por la IA, que solo existe si la cámara está activa y alguien la
+        mira: la vista previa salía unas veces sí y otras no. Este sale directo
+        de MediaMTX, así que funciona aunque la IA no procese la cámara.
+        Lo que se ve es exactamente lo que recibe el servidor (misma
+        orientación y encuadre que analiza el motor).
+        """
+        import subprocess
+
+        if not _STREAM_KEY_RE.match(stream_key):
+            self.send_error(404, "Not found")
+            return
+        if not _snapshot_sem.acquire(timeout=10):
+            self.send_error(503, "Busy")
+            return
+        try:
+            proc = subprocess.run(
+                ["ffmpeg", "-v", "error", "-rtsp_transport", "tcp",
+                 "-i", f"rtsp://localhost:8554/{stream_key}",
+                 "-frames:v", "1", "-q:v", "3", "-f", "image2", "-c:v", "mjpeg", "pipe:1"],
+                capture_output=True, timeout=12)
+            data = proc.stdout
+        except subprocess.TimeoutExpired:
+            data = b""
+        finally:
+            _snapshot_sem.release()
+        if len(data) < 1024:
+            self.send_error(404, "No video from this camera")
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", "image/jpeg")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-cache, no-store")
+        self.end_headers()
+        self.wfile.write(data)
 
     def do_POST(self):
         path = self.path.strip("/").split("/")
