@@ -128,6 +128,13 @@ def _coerce_polygon(raw) -> list[tuple[float, float]]:
     return poly
 
 
+def _minusculas(d: dict) -> dict:
+    """Claves en minúsculas. El backend guardó un tiempo las zonas en
+    PascalCase ({"Type", "Polygon"}) y aquí se leían en minúsculas: se
+    guardaban pero el motor no encontraba ninguna."""
+    return {str(k).lower(): v for k, v in d.items()}
+
+
 def parse_zones(raw) -> CameraZones:
     """
     Construye CameraZones desde lo que mande el backend en el campo `zones` de la
@@ -140,6 +147,7 @@ def parse_zones(raw) -> CameraZones:
         if isinstance(raw, str):
             raw = json.loads(raw)
         if isinstance(raw, dict):
+            raw = _minusculas(raw)
             items = raw.get("zones", [])
         elif isinstance(raw, list):
             items = raw
@@ -150,6 +158,7 @@ def parse_zones(raw) -> CameraZones:
         for it in items:
             if not isinstance(it, dict):
                 continue
+            it = _minusculas(it)
             ztype = str(it.get("type", "custom")).lower().strip() or "custom"
             polygon = _coerce_polygon(it.get("polygon") or it.get("points"))
             if len(polygon) < 3:
