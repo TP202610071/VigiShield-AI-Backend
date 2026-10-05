@@ -169,6 +169,9 @@ MEDIAMTX_RTSP_URL: str | None = os.getenv("MEDIAMTX_RTSP_URL", "rtsp://localhost
 # ── Processing tuning ─────────────────────────────────────────────────────────
 FRAME_INTERVAL_SECONDS: float = float(os.getenv("FRAME_INTERVAL_SECONDS", "0.5"))
 CAMERA_REFRESH_INTERVAL: int = int(os.getenv("CAMERA_REFRESH_INTERVAL", "300"))
+# Cada cuánto se relee la lista de cámaras (una sola petición al backend). Los
+# rostros se siguen sincronizando cada CAMERA_REFRESH_INTERVAL.
+CAMERA_POLL_SECONDS: int = int(os.getenv("CAMERA_POLL_SECONDS", "10"))
 
 # ── Event snapshots ───────────────────────────────────────────────────────────
 # When an event fires we save a JPEG of the moment so the app's history can show

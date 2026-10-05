@@ -1,0 +1,62 @@
+[
+  {
+    "key": "ejemplo01",
+    "pexelsId": "11680516",
+    "fuente": "https://www.pexels.com/video/11680516/",
+    "titulo": "Persona encapuchada toca la puerta"
+  },
+  {
+    "key": "ejemplo02",
+    "pexelsId": "29072593",
+    "fuente": "https://www.pexels.com/video/29072593/",
+    "titulo": "Alguien se asoma a la puerta de noche"
+  },
+  {
+    "key": "ejemplo03",
+    "pexelsId": "18573527",
+    "fuente": "https://www.pexels.com/video/18573527/",
+    "titulo": "Persona con linterna junto a una ventana, de noche"
+  },
+  {
+    "key": "ejemplo04",
+    "pexelsId": "6031871",
+    "fuente": "https://www.pexels.com/video/6031871/",
+    "titulo": "Alguien recoge paquetes de la entrada"
+  },
+  {
+    "key": "ejemplo05",
+    "pexelsId": "6034753",
+    "fuente": "https://www.pexels.com/video/6034753/",
+    "titulo": "Visita desconocida con un paquete"
+  },
+  {
+    "key": "ejemplo06",
+    "pexelsId": "6667226",
+    "fuente": "https://www.pexels.com/video/6667226/",
+    "titulo": "Repartidor toca la puerta"
+  },
+  {
+    "key": "ejemplo07",
+    "pexelsId": "6258195",
+    "fuente": "https://www.pexels.com/video/6258195/",
+    "titulo": "Alguien manipula una cámara de seguridad"
+  },
+  {
+    "key": "ejemplo08",
+    "pexelsId": "13702778",
+    "fuente": "https://www.pexels.com/video/13702778/",
+    "titulo": "Persona con faroles frente a una casa, de noche"
+  },
+  {
+    "key": "ejemplo09",
+    "pexelsId": "8388279",
+    "fuente": "https://www.pexels.com/video/8388279/",
+    "titulo": "Persona revisa un auto de noche"
+  },
+  {
+    "key": "ejemplo10",
+    "pexelsId": "7701946",
+    "fuente": "https://www.pexels.com/video/7701946/",
+    "titulo": "Desconocido toca el timbre (vista por la mirilla)"
+  }
+]
