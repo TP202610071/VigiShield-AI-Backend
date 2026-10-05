@@ -46,7 +46,13 @@ def _get_client():
                     aws_access_key_id=config.R2_ACCESS_KEY_ID,
                     aws_secret_access_key=config.R2_SECRET_ACCESS_KEY,
                     region_name="auto",
-                    config=BotoConfig(signature_version="s3v4"),
+                    # Tiempos cortos: la subida bloquea el worker de la cámara.
+                    # Con los de boto3 (60 s), reusar una conexión que R2 ya
+                    # cerró tras unos minutos sin eventos congelaba el análisis
+                    # un minuto entero antes de reintentar.
+                    config=BotoConfig(signature_version="s3v4", connect_timeout=5,
+                                      read_timeout=15, tcp_keepalive=True,
+                                      retries={"max_attempts": 3, "mode": "standard"}),
                 )
                 logger.info("R2 client ready → %s / %s", config.R2_ENDPOINT, config.R2_BUCKET)
             except Exception as e:
