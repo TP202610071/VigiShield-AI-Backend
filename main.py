@@ -6,7 +6,8 @@ On startup:
   2. Syncs authorized face photos for each household
   3. Starts one worker thread per camera
   4. Each thread runs the full detection pipeline (YOLO + DeepFace + ActivityModel)
-  5. Refreshes the camera list every CAMERA_REFRESH_INTERVAL seconds
+  5. Re-reads the camera list every CAMERA_POLL_SECONDS (cheap: one GET) and
+     re-syncs faces every CAMERA_REFRESH_INTERVAL seconds
 
 Usage:
     cp .env.example .env   # fill in values (defaults work for local dev)
@@ -208,8 +209,13 @@ class CameraManager:
 
     def __init__(self):
         self._workers: dict[str, CameraWorker] = {}
+        self._faces_synced: set[str] = set()
 
-    def refresh(self, cameras: list[dict]):
+    @staticmethod
+    def _stream_of(cam: dict) -> tuple:
+        return (cam.get("mediaMtxRtspUrl"), cam.get("rtspUrl"))
+
+    def refresh(self, cameras: list[dict], sync_all_faces: bool = True):
         current_ids = {str(c["id"]) for c in cameras}
         running_ids = set(self._workers.keys())
 
@@ -218,16 +224,31 @@ class CameraManager:
             logger.info("Camera %s removed — stopping worker", cid[:8])
             self._workers.pop(cid).stop()
 
-        # Sync faces per household (deduplicated)
+        # La misma cámara con otro stream (el video de ejemplo cambia de path al
+        # pedir otro): el worker seguía leyendo el anterior. Se reinicia.
+        for cam in cameras:
+            cid = str(cam["id"])
+            w = self._workers.get(cid)
+            if w is not None and self._stream_of(w.camera) != self._stream_of(cam):
+                logger.info("Camera %s changed stream — restarting worker", cid[:8])
+                self._workers.pop(cid).stop()
+
+        # Sync faces per household (deduplicated). Cada CAMERA_REFRESH_INTERVAL
+        # todos; entre medias solo los hogares nuevos, para que la lista de
+        # cámaras se pueda leer seguido sin descargar rostros cada vez.
         household_ids_seen = set()
         for cam in cameras:
             hid = str(cam["householdId"])
-            if hid not in household_ids_seen:
-                household_ids_seen.add(hid)
-                try:
-                    sync_faces(hid, config.FACES_DIR)
-                except Exception as e:
-                    logger.warning("Face sync failed for household %s: %s", hid[:8], e)
+            if hid in household_ids_seen:
+                continue
+            household_ids_seen.add(hid)
+            if not sync_all_faces and hid in self._faces_synced:
+                continue
+            try:
+                sync_faces(hid, config.FACES_DIR)
+                self._faces_synced.add(hid)
+            except Exception as e:
+                logger.warning("Face sync failed for household %s: %s", hid[:8], e)
 
         # Start workers for new cameras; hot-reload zones on existing ones.
         for cam in cameras:
@@ -260,7 +281,8 @@ def main():
     logger.info("  Backend : %s", config.BACKEND_API_URL)
     logger.info("  Models  : Activity=%s | YOLO=%s | DeepFace=VGG-Face",
                 config.ACTIVITY_MODEL_PATH, config.YOLO_MODEL)
-    logger.info("  Refresh : every %ds", config.CAMERA_REFRESH_INTERVAL)
+    logger.info("  Refresh : cameras every %ds, faces every %ds",
+                config.CAMERA_POLL_SECONDS, config.CAMERA_REFRESH_INTERVAL)
     logger.info("=" * 60)
 
     # Start AI frame server — Flutter app polls this for annotated video frames.
@@ -268,22 +290,37 @@ def main():
 
     manager = CameraManager()
 
+    # La lista se lee cada CAMERA_POLL_SECONDS: una cámara nueva (o el video de
+    # ejemplo que alguien acaba de pedir) empieza a analizarse en segundos y no
+    # en hasta cinco minutos. Solo se registra en el log cuando algo cambia.
+    last_faces = float("-inf")
+    last_ids: set[str] | None = None
     try:
         while True:
             cameras = get_all_cameras()
+            if cameras is None:
+                # Backend caído: se mantiene lo que ya corre y se reintenta.
+                time.sleep(config.CAMERA_POLL_SECONDS)
+                continue
+            ids = {str(c["id"]) for c in cameras}
+            faces_due = time.monotonic() - last_faces >= config.CAMERA_REFRESH_INTERVAL
 
-            if not cameras:
-                logger.warning(
-                    "No configured cameras found in backend.\n"
-                    "  → Open the VigiShield app → Settings → Cameras → Add a camera."
-                )
-            else:
-                logger.info("Camera list: %d camera(s)", len(cameras))
-                manager.refresh(cameras)
+            if ids != last_ids:
+                if not cameras:
+                    logger.warning(
+                        "No configured cameras found in backend.\n"
+                        "  → Open the VigiShield app → Settings → Cameras → Add a camera."
+                    )
+                else:
+                    logger.info("Camera list: %d camera(s)", len(cameras))
+            manager.refresh(cameras, sync_all_faces=faces_due)
+            if faces_due:
+                last_faces = time.monotonic()
+            if ids != last_ids:
                 logger.info("Active workers: %d", manager.count)
+                last_ids = ids
 
-            logger.info("Next camera refresh in %ds...", config.CAMERA_REFRESH_INTERVAL)
-            time.sleep(config.CAMERA_REFRESH_INTERVAL)
+            time.sleep(config.CAMERA_POLL_SECONDS)
 
     except KeyboardInterrupt:
         logger.info("Shutdown requested — stopping all workers...")

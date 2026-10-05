@@ -12,10 +12,12 @@ _HEADERS = {
 }
 
 
-def get_all_cameras() -> list[dict]:
+def get_all_cameras() -> list[dict] | None:
     """
     Fetch all configured cameras across all households.
-    Returns list of dicts: {id, householdId, name, rtspUrl, streamMode, isDefault}
+    Returns list of dicts: {id, householdId, name, rtspUrl, streamMode, isDefault},
+    or None if the backend could not be reached. None and [] are different: a
+    failed request must not stop every running worker.
     """
     try:
         resp = requests.get(
@@ -31,7 +33,7 @@ def get_all_cameras() -> list[dict]:
         # directa: publicaban por WebRTC y nadie las leia.
         configured = [c for c in cameras
                       if c.get("rtspUrl") or c.get("mediaMtxRtspUrl")]
-        logger.info("Fetched %d configured camera(s) from backend", len(configured))
+        logger.debug("Fetched %d configured camera(s) from backend", len(configured))
         return configured
     except requests.exceptions.ConnectionError:
         logger.error("Cannot connect to backend at %s — is it running?", BACKEND_API_URL)
@@ -39,7 +41,7 @@ def get_all_cameras() -> list[dict]:
         logger.error("Backend error fetching cameras: %s — %s", e.response.status_code, e.response.text)
     except Exception as e:
         logger.error("Unexpected error fetching cameras: %s", e)
-    return []
+    return None
 
 
 def get_alert_config(household_id: str) -> dict | None:
