@@ -38,7 +38,7 @@ class StreamReader:
     # (p. ej. el stream cambió de resolución a mitad) y repite el último cuadro.
     FROZEN_SECONDS = 8.0
 
-    def __init__(self, rtsp_url: str, reconnect_delay: int = 5, max_reconnects: int = 10):
+    def __init__(self, rtsp_url: str, reconnect_delay: int = 2, max_reconnects: int = 30):
         self.rtsp_url = rtsp_url
         self.reconnect_delay = reconnect_delay
         self.max_reconnects = max_reconnects
