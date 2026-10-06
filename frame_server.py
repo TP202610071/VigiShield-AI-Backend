@@ -7,6 +7,7 @@ Used by the Flutter app's "AI View" mode to show real-time detection overlays.
 Endpoint:
   GET /frame/{camera_id}  →  image/jpeg  (latest annotated frame)
   GET /status/{camera_id} →  application/json  (latest detection status)
+  GET /en-vivo/{clave}    →  {"enVivo": bool}  (¿alguien transmite esa cámara?)
   GET /health             →  200 OK
 
 Start with start_server(port=5050). Store frames with store_frame(camera_id, jpeg_bytes).
@@ -277,6 +278,13 @@ class _FrameHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(data)
             return
 
+        # ¿Alguien transmite esta cámara? Lo usa la app con la cámara de un
+        # teléfono, que deja de transmitir al salir de VigiShield (ver
+        # transmision.py). Llega por nginx /ai/, que ya exige el JWT.
+        if len(path) == 2 and path[0] == "en-vivo":
+            self._en_vivo(path[1].split("?")[0])
+            return
+
         if len(path) == 2 and path[0] == "status":
             camera_id = path[1]
             # Touch the request clock too, so polling /status keeps the pipeline
@@ -295,6 +303,24 @@ class _FrameHandler(http.server.BaseHTTPRequestHandler):
             return
 
         self.send_error(404, "Not found")
+
+    def _en_vivo(self, clave: str) -> None:
+        import transmision
+        try:
+            vivo = transmision.en_vivo(clave)
+        except ValueError:
+            self.send_error(404, "Not found")
+            return
+        if vivo is None:
+            self.send_error(503, "Estado de la transmision no disponible")
+            return
+        body = json.dumps({"enVivo": vivo}).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
 
     def _snapshot(self, stream_key: str):
         """
