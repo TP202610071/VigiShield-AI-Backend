@@ -173,11 +173,38 @@ def _get_frame(camera_id: str) -> Optional[bytes]:
 
 
 class _FrameHandler(http.server.BaseHTTPRequestHandler):
+    def _admin(self, recurso: str) -> None:
+        import admin_api
+        if not admin_api.es_admin(self.headers.get("Authorization")):
+            self.send_error(403, "Solo administradores")
+            return
+        if recurso == "metricas":
+            payload = admin_api.metricas()
+        elif recurso == "streams":
+            with _lock:
+                estados = {cid: dict(s) for cid, s in _status.items()}
+            payload = admin_api.streams(estados)
+        else:
+            self.send_error(404, "Not found")
+            return
+        body = json.dumps(payload).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
         path = self.path.strip("/").split("/")
 
         if path == ["health"]:
             self._ok_text("VigiShield AI Frame Server OK")
+            return
+
+        # Panel de administración (vigishield.app/admin): solo rol Admin.
+        if len(path) == 2 and path[0] == "admin":
+            self._admin(path[1].split("?")[0])
             return
 
         # Auth gate for nginx auth_request. nginx forwards the viewer's token in the
