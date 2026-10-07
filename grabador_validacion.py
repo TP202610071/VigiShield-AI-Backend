@@ -2,10 +2,12 @@
 Grabación de evidencia para la validación (objetivo 4).
 
 Cuando la cámara de un celular empieza a transmitir, se guarda su primer minuto
-como evidencia del estudio. SOLO de los hogares que lo aceptaron, listados en
-`consentimiento.txt`: la política de privacidad dice que el video no se graba
-de forma continua, así que grabar a quien no lo aceptó la incumpliría. Con la
-lista vacía no se graba nada.
+como evidencia del estudio. SOLO de los hogares con «Grabar evidencia»
+encendido: lo decide el backend (interruptor del panel de administración y la
+regla por defecto, ver EvidenciaService) y se suman los de `consentimiento.txt`.
+Grabar a quien no lo aceptó incumpliría la política de privacidad.
+
+Cuando un hogar deja de existir (cuenta eliminada), se borran sus grabaciones.
 
 Es un servicio aparte (vigishield-grabaciones.service). No toca el pipeline de
 IA, MediaMTX ni el backend: solo lee. Si falla, todo lo demás sigue igual.
@@ -47,6 +49,7 @@ MAX_BYTES = int(float(os.getenv("GRAB_MAX_GB", "3")) * 2**30)
 SIMULTANEAS = int(os.getenv("GRAB_SIMULTANEAS", "6"))
 INTERVALO = float(os.getenv("GRAB_INTERVALO", "5"))
 REFRESCO_CAMARAS = 60.0
+REFRESCO_HOGARES = 60.0
 MEDIAMTX_PATHS = "http://127.0.0.1:9997/v3/paths/list"
 RTSP_LOCAL = "rtsp://127.0.0.1:8554/"
 ZONA = ZoneInfo("America/Lima")
@@ -99,6 +102,23 @@ def camaras_de_celular(camaras: list[dict]) -> dict[str, dict]:
         if clave and c.get("streamMode") == "MobileWebRtc":
             mapa[clave] = c
     return mapa
+
+
+def hogares_del_backend() -> Optional[tuple[set[str], set[str]]]:
+    """(hogares a grabar, hogares que existen) según el backend, o None si no
+    respondió. Solo lectura, con la clave interna."""
+    import requests
+    from config import BACKEND_API_URL, INTERNAL_API_KEY
+    try:
+        r = requests.get(f"{BACKEND_API_URL}/api/internal/evidencia/hogares",
+                         headers={"X-Api-Key": INTERNAL_API_KEY}, timeout=10)
+        r.raise_for_status()
+        d = r.json()
+        return ({str(h).lower() for h in d.get("grabar", [])},
+                {str(h).lower() for h in d.get("existentes", [])})
+    except Exception as e:
+        logger.warning("No se pudo leer «Grabar evidencia» del backend: %s", e)
+        return None
 
 
 def dia_lima(momento: datetime) -> str:
@@ -166,6 +186,7 @@ class Grabador:
     def __init__(self, directorio: Path = DIRECTORIO,
                  leer_paths: Optional[Callable[[], list[dict]]] = None,
                  leer_camaras: Optional[Callable[[], Optional[list[dict]]]] = None,
+                 leer_hogares: Optional[Callable[[], Optional[tuple[set[str], set[str]]]]] = None,
                  grabar_fn: Callable[[str, Path, int], int] = grabar,
                  segundos: int = SEGUNDOS, por_dia: int = POR_DIA,
                  max_bytes: int = MAX_BYTES, simultaneas: int = SIMULTANEAS):
@@ -174,6 +195,9 @@ class Grabador:
         self.consentimiento = directorio / "consentimiento.txt"
         self._leer_paths = leer_paths or self._paths_de_mediamtx
         self._leer_camaras = leer_camaras or self._camaras_del_backend
+        self._leer_hogares = leer_hogares or hogares_del_backend
+        self._hogares_grabar: set[str] = set()
+        self._hogares_en = 0.0
         self._grabar = grabar_fn
         self.segundos, self.por_dia = segundos, por_dia
         self.max_bytes, self.simultaneas = max_bytes, simultaneas
@@ -218,10 +242,51 @@ class Grabador:
             self._camaras = camaras_de_celular(camaras)
             self._camaras_en = time.monotonic()
 
+    def _refrescar_hogares(self) -> None:
+        if self._hogares_en and time.monotonic() - self._hogares_en < REFRESCO_HOGARES:
+            return
+        self._hogares_en = time.monotonic()
+        respuesta = self._leer_hogares()
+        if respuesta is None:  # backend caído: se sigue con lo último que respondió
+            return
+        grabar, existentes = respuesta
+        self._hogares_grabar = grabar
+        self.limpiar_borrados(existentes)
+
+    def limpiar_borrados(self, existentes: set[str]) -> int:
+        """Borra las grabaciones de hogares que ya no existen (cuenta eliminada).
+        Con una lista vacía no borra nada: sería un error del backend, no que
+        se borraran todas las cuentas."""
+        if not existentes:
+            return 0
+        with self._lock:
+            try:
+                with self.indice.open(encoding="utf-8", newline="") as f:
+                    filas = list(csv.DictReader(f))
+            except OSError:
+                return 0
+            quedan, borradas = [], 0
+            for fila in filas:
+                if fila.get("hogar", "").lower() in existentes:
+                    quedan.append(fila)
+                    continue
+                (self.directorio / fila.get("archivo", "")).unlink(missing_ok=True)
+                borradas += 1
+            if borradas:
+                temporal = self.indice.with_suffix(".tmp")
+                with temporal.open("w", encoding="utf-8", newline="") as f:
+                    w = csv.DictWriter(f, fieldnames=COLUMNAS)
+                    w.writeheader()
+                    w.writerows(quedan)
+                temporal.replace(self.indice)
+                logger.info("Se borraron %d grabaciones de cuentas eliminadas", borradas)
+            return borradas
+
     def ciclo(self) -> list[str]:
         """Una vuelta: arranca las grabaciones que tocan. Devuelve sus claves."""
         self._hilos = [h for h in self._hilos if h.is_alive()]
-        hogares = leer_consentimiento(self.consentimiento)
+        self._refrescar_hogares()
+        hogares = leer_consentimiento(self.consentimiento) | self._hogares_grabar
         if not hogares:
             return []
         claves = publicando_por_webrtc(self._leer_paths())

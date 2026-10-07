@@ -44,6 +44,7 @@ def _grabador(tmp_path, paths, camaras, consentidos=(HOGAR,), **kw):
             "# hogares que aceptaron\n" + "\n".join(f"{h}   # tester@x.com" for h in consentidos) + "\n",
             encoding="utf-8")
     grabaciones = _Grabaciones()
+    kw.setdefault("leer_hogares", lambda: None)
     grab = g.Grabador(tmp_path, leer_paths=lambda: paths, leer_camaras=lambda: camaras,
                       grabar_fn=grabaciones, **kw)
     return grab, grabaciones
@@ -72,7 +73,8 @@ def test_solo_cuentan_los_celulares_que_ya_transmiten():
 def test_sin_consentimiento_no_graba_ni_pregunta_a_mediamtx(tmp_path):
     def no_llamar():
         raise AssertionError("no debía consultar MediaMTX")
-    grab = g.Grabador(tmp_path, leer_paths=no_llamar, leer_camaras=lambda: [], grabar_fn=_Grabaciones())
+    grab = g.Grabador(tmp_path, leer_paths=no_llamar, leer_camaras=lambda: [], grabar_fn=_Grabaciones(),
+                      leer_hogares=lambda: (set(), {HOGAR}))
     assert grab.ciclo() == []
 
 
@@ -127,3 +129,40 @@ def test_el_comando_copia_sin_recodificar_desde_mediamtx_local(tmp_path):
     assert cmd[cmd.index("-c:v") + 1] == "copy" and "-an" in cmd
     assert cmd[cmd.index("-t") + 1] == "60"
     assert "frag_keyframe" in cmd[cmd.index("-movflags") + 1]
+
+
+def test_el_interruptor_del_backend_se_suma_a_la_lista(tmp_path):
+    grab, _ = _grabador(tmp_path, [_path("cel1"), _path("cel2")],
+                        [_cam("cel1"), _cam("cel2", hogar=OTRO)], consentidos=(),
+                        leer_hogares=lambda: ({OTRO}, {HOGAR, OTRO}))
+    assert grab.ciclo() == ["cel2"]
+    _esperar(grab)
+
+
+def test_si_el_backend_no_responde_se_queda_con_lo_ultimo(tmp_path):
+    respuestas = [({OTRO}, {OTRO}), None]
+    grab, _ = _grabador(tmp_path, [_path("cel2")], [_cam("cel2", hogar=OTRO)], consentidos=(),
+                        leer_hogares=lambda: respuestas.pop(0))
+    grab._refrescar_hogares()
+    grab._hogares_en = 0  # fuerza otra lectura, que falla
+    assert grab.ciclo() == ["cel2"]
+    assert respuestas == []
+    _esperar(grab)
+
+
+def test_borra_las_grabaciones_de_cuentas_eliminadas_y_nunca_con_lista_vacia(tmp_path):
+    grab, _ = _grabador(tmp_path, [_path("cel1"), _path("cel2")],
+                        [_cam("cel1"), _cam("cel2", hogar=OTRO)], consentidos=(HOGAR, OTRO))
+    grab.ciclo()
+    _esperar(grab)
+    filas = list(csv.DictReader((tmp_path / "indice.csv").open(encoding="utf-8")))
+    archivos = {f["hogar"]: tmp_path / f["archivo"] for f in filas}
+    assert len(archivos) == 2
+
+    assert grab.limpiar_borrados(set()) == 0          # lista vacía: no se toca nada
+    assert all(a.exists() for a in archivos.values())
+
+    assert grab.limpiar_borrados({HOGAR}) == 1        # OTRO eliminó su cuenta
+    assert archivos[HOGAR].exists() and not archivos[OTRO].exists()
+    filas = list(csv.DictReader((tmp_path / "indice.csv").open(encoding="utf-8")))
+    assert [f["hogar"] for f in filas] == [HOGAR]
