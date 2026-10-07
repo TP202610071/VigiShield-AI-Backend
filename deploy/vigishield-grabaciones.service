@@ -1,0 +1,20 @@
+[Unit]
+Description=VigiShield - grabaciones de evidencia para la validacion (solo hogares que aceptaron)
+After=network-online.target mediamtx.service
+Wants=network-online.target
+
+[Service]
+User=vigishield
+WorkingDirectory=/opt/vigishield-ai/app
+Environment=HOME=/home/vigishield
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/vigishield-ai/venv/bin/python -u grabador_validacion.py
+Restart=always
+RestartSec=10
+# Por debajo de la IA: nunca debe quitarle CPU ni disco.
+Nice=10
+IOSchedulingClass=idle
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target
