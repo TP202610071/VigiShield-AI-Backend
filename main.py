@@ -25,6 +25,7 @@ import requests as _requests
 
 import config  # loads .env, configures logging, adds CUDA DLL dir
 import frame_server
+import rostros_evento
 from api_client import (
     attach_clip,
     get_alert_config,
@@ -180,6 +181,7 @@ class CameraWorker(threading.Thread):
                             result = ingest_event(**ev)
                             if first_event_id is None and isinstance(result, dict):
                                 first_event_id = result.get("id")
+                        rostros_evento.subir_en_segundo_plano(detector, snap_url, events)
 
                         # Record a short clip in the background and attach it to the
                         # event once uploaded (so the live alert isn't delayed).

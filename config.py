@@ -224,3 +224,35 @@ logging.basicConfig(
 _cuda_bin = r"G:\NVIDIA\NVIDIA GPU Computing Toolkit\CUDA\v11.2\bin"
 if sys.platform == "win32" and os.path.isdir(_cuda_bin):
     os.add_dll_directory(_cuda_bin)
+
+# ── Mejoras de detección (2026-10-10) ─────────────────────────────────────────
+# Cada una se apaga con su interruptor en el .env (false) y un reinicio del
+# servicio, sin redesplegar: así se vuelve al comportamiento anterior al instante.
+def _bool(nombre: str, defecto: str = "true") -> bool:
+    return os.getenv(nombre, defecto).strip().lower() in ("1", "true", "yes", "si", "sí")
+
+
+# Merodeo por PERSONA (no por escena): cuenta cuánto lleva cada persona sin
+# irse, no cuánto lleva "alguien" en la imagen. No cuenta a residentes
+# reconocidos y, si la cámara tiene zonas, solo dentro de zonas que no sean
+# la calle. Si la persona sale de la zona o deja de verse más de
+# MERODEO_PAUSA_SEGUNDOS, su contador vuelve a cero.
+MERODEO_POR_PERSONA: bool = _bool("MERODEO_POR_PERSONA")
+MERODEO_PAUSA_SEGUNDOS: float = float(os.getenv("MERODEO_PAUSA_SEGUNDOS", "4"))
+
+# "Persona desconocida" solo si de verdad se vio su rostro y no coincide con
+# ningún residente. Quien nunca mostró la cara (de espaldas, tapada o lejos)
+# queda "Sin identificar": no dispara el evento ni suma como desconocido.
+DESCONOCIDO_REQUIERE_ROSTRO: bool = _bool("DESCONOCIDO_REQUIERE_ROSTRO")
+# Alto mínimo del rostro, en píxeles del cuadro original, para usarlo como
+# prueba de que la persona es desconocida (más chico, el rostro no es fiable).
+ROSTRO_MIN_PX: int = int(os.getenv("ROSTRO_MIN_PX", "40"))
+
+# Imagen del rostro del evento: comparación lado a lado con la foto registrada
+# (acceso reconocido) o recorte ampliado (persona desconocida). Se sube a R2
+# junto a la foto del evento, sin retrasar la alerta.
+ROSTRO_EN_EVENTO: bool = _bool("ROSTRO_EN_EVENTO")
+# Para ofrecer "registrar a esta persona" se necesitan estas fotos del rostro,
+# de distintos momentos y con al menos este alto en píxeles originales.
+ROSTRO_REGISTRO_FOTOS: int = int(os.getenv("ROSTRO_REGISTRO_FOTOS", "3"))
+ROSTRO_REGISTRO_MIN_PX: int = int(os.getenv("ROSTRO_REGISTRO_MIN_PX", "60"))
