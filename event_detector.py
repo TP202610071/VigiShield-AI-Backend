@@ -31,6 +31,9 @@ import config
 from caiee import Evidence, IntentEngine
 from zones import parse_zones
 from pose_behavior import PoseBehaviorDetector
+from identidad_rostro import IdentidadPorRostro
+from merodeo import MerodeoPorPersona
+from rostros_evento import RostrosDelEvento
 
 logger = logging.getLogger(__name__)
 
@@ -1087,6 +1090,12 @@ class EventDetector:
 
         self._behavior = BehaviorAnalyzer()
         self._tracker = PersonTracker()
+        # Mejoras 2026-10-10 (cada una con su interruptor en config): merodeo por
+        # persona, desconocido solo con rostro visto e imagen del rostro del evento.
+        self._merodeo = MerodeoPorPersona()
+        self._identidad = IdentidadPorRostro()
+        self._rostros = RostrosDelEvento()
+        self._id_rostros = None
         self._last_event_time: dict[str, float] = {}
         # Latest detections, kept so an event snapshot can be drawn with the boxes
         # that triggered it (persons/weapons/objects/faces).
@@ -1155,6 +1164,13 @@ class EventDetector:
         if self._face:
             self._face.push_frame(frame, event_persons)
         faces = self._face.faces if self._face else []
+        if config.DESCONOCIDO_REQUIERE_ROSTRO or config.ROSTRO_EN_EVENTO:
+            # Los rostros quedan en caché entre pasadas del reconocedor: solo una
+            # lista nueva es una observación nueva.
+            fresco = id(faces) != self._id_rostros
+            self._id_rostros = id(faces)
+            self._identidad.observar(faces, event_persons, assign, frame, fresco, now)
+            self._identidad.limpiar(self._tracker)
 
         # A known face inside a person box makes that track that identity (once →
         # FaceRecognized). The identity PERSISTS on the track even if the face is
@@ -1169,6 +1185,8 @@ class EventDetector:
                 if x1 <= fcx <= x2 and y1 <= fcy <= y2:
                     tid = assign.get(i)
                     if tid is not None and self._tracker.mark_known(tid, f["name"]):
+                        if config.ROSTRO_EN_EVENTO:
+                            self._rostros.al_reconocer(frame, f)
                         candidates.append({
                             "event_type": "FaceRecognized",
                             "confidence_score": round(1.0 - f.get("distance", 0.0), 3),
@@ -1179,7 +1197,12 @@ class EventDetector:
         # Unknown-person alert: a NEW person still unrecognized after the grace
         # window fires exactly ONE UnknownFace (no spam; re-fires only for a
         # genuinely new person).
-        for _tid in self._tracker.pending_unknown(now):
+        nuevos_desconocidos = (self._identidad.pendientes_desconocidos(self._tracker, now)
+                               if config.DESCONOCIDO_REQUIERE_ROSTRO
+                               else self._tracker.pending_unknown(now))
+        for _tid in nuevos_desconocidos:
+            if config.ROSTRO_EN_EVENTO:
+                self._rostros.al_desconocido(self._identidad.fotos(_tid))
             candidates.append({
                 "event_type": "UnknownFace", "confidence_score": 0.85,
                 "risk_level": "Medium", "is_nighttime": _is_nighttime(),
@@ -1193,6 +1216,8 @@ class EventDetector:
                 person_labels[i] = (tr["name"], _COLOR_FACE_KNOWN)
             elif tr and tr["state"] == "unknown":
                 person_labels[i] = ("Desconocido", _COLOR_FACE_UNKNOWN)
+            elif config.DESCONOCIDO_REQUIERE_ROSTRO and self._identidad.sin_rostro(assign.get(i), self._tracker, now):
+                person_labels[i] = ("Sin identificar", _COLOR_PERSON)
             else:
                 person_labels[i] = ("Identificando...", _COLOR_PERSON)
 
@@ -1208,7 +1233,16 @@ class EventDetector:
 
         # ── Behavior fusion ───────────────────────────────────────────────────
         alerts, armed = self._behavior.analyze(event_persons, weapons, faces, frame.shape)
-        if any(a[0].startswith("Merodeo") for a in alerts):
+        if config.MERODEO_POR_PERSONA:
+            # El reloj de escena del analizador no se usa: lo reemplaza el de cada persona.
+            alerts = [a for a in alerts if not a[0].startswith("Merodeo")]
+            hay_merodeo_nuevo = bool(self._merodeo.actualizar(
+                event_persons, assign, self._tracker, self._zones, frame.shape, now))
+            if self._merodeo.maximo(now) > 0:
+                alerts.insert(0, (f"Merodeo {int(self._merodeo.maximo(now))}s", "Medium"))
+        else:
+            hay_merodeo_nuevo = any(a[0].startswith("Merodeo") for a in alerts)
+        if hay_merodeo_nuevo:
             candidates.append({
                 "event_type": "Tailgating", "confidence_score": 0.75,
                 "risk_level": "Medium", "is_nighttime": _is_nighttime(),
@@ -1249,7 +1283,8 @@ class EventDetector:
                     is_known=(state == "known"),
                     zone_type=(zone.zone_type if zone else None),
                     in_entry_zone=bool(zone and zone.is_entry),
-                    loitering=(dwell >= config.LOITER_SECONDS),
+                    loitering=(self._merodeo.merodeando(tid, now) if config.MERODEO_POR_PERSONA
+                               else dwell >= config.LOITER_SECONDS),
                     weapon_near=weapon_near,
                     group=group,
                     night=night,
