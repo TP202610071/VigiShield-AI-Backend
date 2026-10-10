@@ -240,10 +240,11 @@ def _bool(nombre: str, defecto: str = "true") -> bool:
 MERODEO_POR_PERSONA: bool = _bool("MERODEO_POR_PERSONA")
 MERODEO_PAUSA_SEGUNDOS: float = float(os.getenv("MERODEO_PAUSA_SEGUNDOS", "4"))
 
-# "Persona desconocida" solo si de verdad se vio su rostro y no coincide con
-# ningún residente. Quien nunca mostró la cara (de espaldas, tapada o lejos)
-# queda "Sin identificar": no dispara el evento ni suma como desconocido.
-DESCONOCIDO_REQUIERE_ROSTRO: bool = _bool("DESCONOCIDO_REQUIERE_ROSTRO")
+# Apagado por defecto (decisión de Diego, 2026-10-10): alguien es desconocido
+# hasta que se demuestre lo contrario, se le vea la cara o no. Encendido, solo
+# sería "Persona desconocida" quien mostró un rostro que no coincide; el resto
+# quedaría "Sin identificar".
+DESCONOCIDO_REQUIERE_ROSTRO: bool = _bool("DESCONOCIDO_REQUIERE_ROSTRO", "false")
 # Alto mínimo del rostro, en píxeles del cuadro original, para usarlo como
 # prueba de que la persona es desconocida (más chico, el rostro no es fiable).
 ROSTRO_MIN_PX: int = int(os.getenv("ROSTRO_MIN_PX", "40"))
@@ -256,3 +257,12 @@ ROSTRO_EN_EVENTO: bool = _bool("ROSTRO_EN_EVENTO")
 # de distintos momentos y con al menos este alto en píxeles originales.
 ROSTRO_REGISTRO_FOTOS: int = int(os.getenv("ROSTRO_REGISTRO_FOTOS", "3"))
 ROSTRO_REGISTRO_MIN_PX: int = int(os.getenv("ROSTRO_REGISTRO_MIN_PX", "60"))
+
+# Reconocimiento con confirmación (confirmacion_rostro.py): una distancia hasta
+# FACE_DISTANCE_CONFIRMACION cuenta como voto; el residente queda reconocido con
+# FACE_CONFIRMACION_PASADAS votos en pasadas distintas y ganándole al siguiente
+# residente más parecido por FACE_MARGEN_MIN. El umbral estricto no cambia.
+FACE_CONFIRMACION_ACTIVA: bool = _bool("FACE_CONFIRMACION_ACTIVA")
+FACE_DISTANCE_CONFIRMACION: float = float(os.getenv("FACE_DISTANCE_CONFIRMACION", "0.45"))
+FACE_CONFIRMACION_PASADAS: int = int(os.getenv("FACE_CONFIRMACION_PASADAS", "2"))
+FACE_MARGEN_MIN: float = float(os.getenv("FACE_MARGEN_MIN", "0.05"))
