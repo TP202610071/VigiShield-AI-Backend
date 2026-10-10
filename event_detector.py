@@ -34,6 +34,7 @@ from pose_behavior import PoseBehaviorDetector
 from identidad_rostro import IdentidadPorRostro
 from merodeo import MerodeoPorPersona
 from rostros_evento import RostrosDelEvento
+from confirmacion_rostro import ConfirmacionRostro
 
 logger = logging.getLogger(__name__)
 
@@ -786,9 +787,19 @@ class FaceRecognizer:
                 distance = float(row.get("distance", 1.0))
                 name = Path(str(row.get("identity", ""))).parent.name or "?"
                 known = distance <= config.FACE_DISTANCE_THRESHOLD
+                # Para la confirmación (confirmacion_rostro.py): residente más
+                # parecido si está a ≤ FACE_DISTANCE_CONFIRMACION, y cuánto le gana
+                # al siguiente residente distinto (las filas vienen ordenadas).
+                margen = 1.0
+                for _, otra in df.iterrows():
+                    if (Path(str(otra.get("identity", ""))).parent.name or "?") != name:
+                        margen = float(otra.get("distance", 1.0)) - distance
+                        break
                 found.append({"box": (sx, sy, sx + sw, sy + sh),
                               "name": name if known else "Desconocido",
-                              "known": known, "distance": distance})
+                              "known": known, "distance": distance,
+                              "candidato": name if distance <= config.FACE_DISTANCE_CONFIRMACION else None,
+                              "margen": margen})
         # Detect any (unmatched → unknown) faces.
         try:
             extracted = DeepFace.extract_faces(
@@ -824,7 +835,8 @@ class FaceRecognizer:
                     fb = (int(ox + bx1 / scale), int(oy + by1 / scale),
                           int(ox + bx2 / scale), int(oy + by2 / scale))
                     faces.append({"box": fb, "name": f["name"],
-                                  "known": f["known"], "distance": f["distance"]})
+                                  "known": f["known"], "distance": f["distance"],
+                                  "candidato": f.get("candidato"), "margen": f.get("margen", 0.0)})
             except Exception as exc:
                 logger.debug("FaceRecognizer crop error: %s", exc)
         self._cached_faces = faces
@@ -1095,6 +1107,7 @@ class EventDetector:
         self._merodeo = MerodeoPorPersona()
         self._identidad = IdentidadPorRostro()
         self._rostros = RostrosDelEvento()
+        self._confirmacion = ConfirmacionRostro()
         self._id_rostros = None
         self._last_event_time: dict[str, float] = {}
         # Latest detections, kept so an event snapshot can be drawn with the boxes
@@ -1164,11 +1177,11 @@ class EventDetector:
         if self._face:
             self._face.push_frame(frame, event_persons)
         faces = self._face.faces if self._face else []
+        # Los rostros quedan en caché entre pasadas del reconocedor: solo una
+        # lista nueva es una observación nueva.
+        fresco = id(faces) != self._id_rostros
+        self._id_rostros = id(faces)
         if config.DESCONOCIDO_REQUIERE_ROSTRO or config.ROSTRO_EN_EVENTO:
-            # Los rostros quedan en caché entre pasadas del reconocedor: solo una
-            # lista nueva es una observación nueva.
-            fresco = id(faces) != self._id_rostros
-            self._id_rostros = id(faces)
             self._identidad.observar(faces, event_persons, assign, frame, fresco, now)
             self._identidad.limpiar(self._tracker)
 
@@ -1193,6 +1206,22 @@ class EventDetector:
                             "risk_level": "None", "is_nighttime": _is_nighttime(),
                             "person_name": f["name"], "source": "face"})
                     break
+
+        # Reconocimiento con confirmación: el mismo residente en varias pasadas,
+        # con distancia ≤ FACE_DISTANCE_CONFIRMACION y ventaja sobre los demás.
+        if config.FACE_CONFIRMACION_ACTIVA:
+            for tid, f in self._confirmacion.observar(faces, event_persons, assign,
+                                                      self._tracker, fresco):
+                if self._tracker.mark_known(tid, f["candidato"]):
+                    confirmado = dict(f, name=f["candidato"])
+                    if config.ROSTRO_EN_EVENTO:
+                        self._rostros.al_reconocer(frame, confirmado)
+                    candidates.append({
+                        "event_type": "FaceRecognized",
+                        "confidence_score": round(1.0 - f.get("distance", 0.0), 3),
+                        "risk_level": "None", "is_nighttime": _is_nighttime(),
+                        "person_name": f["candidato"], "source": "face-confirmado"})
+            self._confirmacion.limpiar(self._tracker)
 
         # Unknown-person alert: a NEW person still unrecognized after the grace
         # window fires exactly ONE UnknownFace (no spam; re-fires only for a

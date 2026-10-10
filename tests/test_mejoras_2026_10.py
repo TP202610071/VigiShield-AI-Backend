@@ -160,6 +160,60 @@ def test_las_entradas_del_motor_son_las_de_la_validacion():
     assert "self._merodeo.merodeando(" not in fuente
 
 
+def _candidato(nombre, margen=0.10, distancia=0.40):
+    return {"box": (540, 210, 590, 270), "name": "Desconocido", "known": False,
+            "distance": distancia, "candidato": nombre, "margen": margen}
+
+
+def test_confirmacion_necesita_dos_pasadas_del_mismo_residente():
+    from confirmacion_rostro import ConfirmacionRostro
+    tr, conf = PersonTracker(), ConfirmacionRostro()
+    asig = tr.update([{"xyxy": CAJA}], 0.0)
+    assert conf.observar([_candidato("Ana")], [{"xyxy": CAJA}], asig, tr, True) == []
+    assert conf.observar([_candidato("Ana")], [{"xyxy": CAJA}], asig, tr, False) == []   # caché: no cuenta
+    salida = conf.observar([_candidato("Ana")], [{"xyxy": CAJA}], asig, tr, True)
+    assert [(tid, r["candidato"]) for tid, r in salida] == [(asig[0], "Ana")]
+
+
+def test_confirmacion_no_nombra_si_se_parece_a_dos_residentes():
+    from confirmacion_rostro import ConfirmacionRostro
+    tr, conf = PersonTracker(), ConfirmacionRostro()
+    asig = tr.update([{"xyxy": CAJA}], 0.0)
+    for _ in range(5):
+        assert conf.observar([_candidato("Ana", margen=0.01)], [{"xyxy": CAJA}], asig, tr, True) == []
+
+
+def test_confirmacion_con_nombres_en_conflicto_exige_mayoria():
+    from confirmacion_rostro import ConfirmacionRostro
+    tr, conf = PersonTracker(), ConfirmacionRostro()
+    asig = tr.update([{"xyxy": CAJA}], 0.0)
+    assert conf.observar([_candidato("Ana")], [{"xyxy": CAJA}], asig, tr, True) == []
+    assert conf.observar([_candidato("Beto")], [{"xyxy": CAJA}], asig, tr, True) == []
+    assert conf.observar([_candidato("Beto")], [{"xyxy": CAJA}], asig, tr, True)[0][1]["candidato"] == "Beto"
+
+
+def test_confirmacion_ignora_a_quien_ya_esta_reconocido():
+    from confirmacion_rostro import ConfirmacionRostro
+    tr, conf = PersonTracker(), ConfirmacionRostro()
+    asig = tr.update([{"xyxy": CAJA}], 0.0)
+    tr.mark_known(asig[0], "Diego")
+    for _ in range(3):
+        assert conf.observar([_candidato("Ana")], [{"xyxy": CAJA}], asig, tr, True) == []
+
+
+def test_desconocido_sin_rostro_queda_apagado_por_defecto():
+    """Decisión de Diego: desconocido hasta demostrar lo contrario."""
+    import importlib, os
+    valor = os.environ.pop("DESCONOCIDO_REQUIERE_ROSTRO", None)
+    try:
+        importlib.reload(config)
+        assert config.DESCONOCIDO_REQUIERE_ROSTRO is False
+    finally:
+        if valor is not None:
+            os.environ["DESCONOCIDO_REQUIERE_ROSTRO"] = valor
+        importlib.reload(config)
+
+
 def test_imagenes_del_rostro_sin_puntos():
     cara = np.full((120, 100, 3), 128, dtype=np.uint8)
     comp = componer_comparacion(cara, cara.copy(), "Diego", 0.20)
