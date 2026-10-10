@@ -1279,12 +1279,16 @@ class EventDetector:
                     for wb in weapons)
                 beh_label, beh_conf = beh_by_track.get(tid, ("Normal", 0.0))
                 ev = Evidence(
-                    is_unknown=(state == "unknown"),
+                    # El motor recibe la MISMA evidencia que en la validación: desconocido
+                    # = no reconocido tras la gracia (se vea o no el rostro) y merodeo =
+                    # tiempo desde que apareció. Las reglas nuevas solo cambian lo que ve
+                    # el usuario (evento, etiqueta, contador), no las entradas del motor.
+                    is_unknown=(self._identidad.desconocido_para_motor(tid, self._tracker, now)
+                                if config.DESCONOCIDO_REQUIERE_ROSTRO else state == "unknown"),
                     is_known=(state == "known"),
                     zone_type=(zone.zone_type if zone else None),
                     in_entry_zone=bool(zone and zone.is_entry),
-                    loitering=(self._merodeo.merodeando(tid, now) if config.MERODEO_POR_PERSONA
-                               else dwell >= config.LOITER_SECONDS),
+                    loitering=(dwell >= config.LOITER_SECONDS),
                     weapon_near=weapon_near,
                     group=group,
                     night=night,

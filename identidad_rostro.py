@@ -67,6 +67,8 @@ class IdentidadPorRostro:
     def __init__(self):
         # tid -> {"vistas": pasadas con rostro desconocido, "fotos": [(t, alto, recorte)]}
         self._por_track: dict[int, dict] = {}
+        # Tracks que el motor ya trata como desconocidos (ver desconocido_para_motor).
+        self._motor_desconocidos: set[int] = set()
 
     def observar(self, rostros: list[dict], personas: list[dict], asignacion: dict[int, int],
                  cuadro, fresco: bool, ahora: float) -> None:
@@ -134,6 +136,22 @@ class IdentidadPorRostro:
                     and ahora - tr["first_seen"] >= config.UNKNOWN_ALERT_GRACE_SECONDS
                     and self._por_track.get(tid, {}).get("vistas", 0) == 0)
 
+    def desconocido_para_motor(self, tid: int | None, tracker, ahora: float) -> bool:
+        """Lo que el motor de riesgo recibe como "desconocido": igual que en la
+        validación, toda persona no reconocida al terminar la gracia, se haya
+        visto o no su rostro. Una vez marcada, lo sigue siendo hasta que se la
+        reconozca. Así las reglas nuevas no cambian las métricas del motor."""
+        tr = tracker.get(tid) if tid is not None else None
+        if tr is None or tr["state"] == "known":
+            self._motor_desconocidos.discard(tid)
+            return False
+        if tr["state"] == "unknown" or tid in self._motor_desconocidos:
+            return True
+        if ahora - tr["first_seen"] >= config.UNKNOWN_ALERT_GRACE_SECONDS:
+            self._motor_desconocidos.add(tid)
+            return True
+        return False
+
     def fotos(self, tid: int) -> list:
         """Recortes del rostro de la persona, del más antiguo al más reciente:
         [(alto_px, recorte)]."""
@@ -144,3 +162,4 @@ class IdentidadPorRostro:
         for tid in list(self._por_track):
             if tid not in vivos:
                 del self._por_track[tid]
+        self._motor_desconocidos &= vivos

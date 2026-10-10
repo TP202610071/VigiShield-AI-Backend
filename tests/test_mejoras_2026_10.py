@@ -136,6 +136,30 @@ def test_rostro_chico_o_repetido_no_cuenta():
         t += 0.5
 
 
+def test_el_motor_recibe_desconocido_como_en_la_validacion():
+    """Para el motor, quien no fue reconocido al terminar la gracia es desconocido
+    aunque no se le haya visto la cara (así se validó): las métricas no cambian."""
+    tr, ident = PersonTracker(), IdentidadPorRostro()
+    tid = tr.update([{"xyxy": CAJA}], 0.0)[0]
+    assert not ident.desconocido_para_motor(tid, tr, 1.0)
+    t, vistos = 0.5, []
+    while t < config.UNKNOWN_ALERT_GRACE_SECONDS + 10:
+        tr.update([{"xyxy": CAJA}], t)
+        vistos.append(ident.desconocido_para_motor(tid, tr, t))
+        t += 0.5
+    assert vistos[-1] and tr.get(tid)["state"] == "pending"   # el evento no salió, el motor sí lo cuenta
+    tr.mark_known(tid, "Diego")
+    assert not ident.desconocido_para_motor(tid, tr, t)
+
+
+def test_las_entradas_del_motor_son_las_de_la_validacion():
+    """Contrato con la tesis: el merodeo que recibe el motor es el tiempo desde que
+    la persona apareció, como en la simulación de 7000 corridas."""
+    fuente = (Path(__file__).resolve().parent.parent / "event_detector.py").read_text(encoding="utf-8")
+    assert "loitering=(dwell >= config.LOITER_SECONDS)," in fuente
+    assert "self._merodeo.merodeando(" not in fuente
+
+
 def test_imagenes_del_rostro_sin_puntos():
     cara = np.full((120, 100, 3), 128, dtype=np.uint8)
     comp = componer_comparacion(cara, cara.copy(), "Diego", 0.20)
