@@ -11,3 +11,9 @@
 - No subir `yolov8n-pose.pt` ni modelos o respaldos privados.
 - El motor (`caiee.py`) y la evidencia que recibe deben seguir iguales a los validados en la tesis;
   `tests/test_mejoras_2026_10.py` lo comprueba.
+- **Llaves y accesos:** nunca en el repo. Están en `../Cloud/` (la carpeta al lado de los repos; PC:
+  `G:\Codigo\VigilShield\Cloud`) y en iCloud Drive → `Cloud/`. `../Cloud/LEEME.md` explica cada una:
+  - SSH al Oracle (backend) y a Azure (IA);
+  - las variables del backend: Supabase, JWT, R2, WhatsApp, Gmail y Firebase;
+  - la llave de Apple (APNs y Sign in with Apple);
+  - los scripts de despliegue y de migraciones.
